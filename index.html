@@ -3,86 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>精品畫廊報價系統</title>
+    <title>精品藝廊報價系統 PRO</title>
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="畫廊報價">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3593/3593444.png">
-    <meta name="theme-color" content="#ffffff">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; letter-spacing: 0.02em; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; appearance: textfield; }
-        .solution-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); border: 1px solid rgba(0,0,0,0.03); }
-        .solution-card:active { transform: scale(0.96); background-color: #f1f5f9; }
-        .receipt-mode { background-color: #ffffff; }
-        .receipt-mode .no-print { display: none !important; }
+        :root { --bg-color: #0f172a; }
+        body { 
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: var(--bg-color);
+            color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 大師級動態背景：流動的極光 */
+        .aurora-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 20% 30%, rgba(30, 58, 138, 0.4) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(88, 28, 135, 0.3) 0%, transparent 40%),
+                        radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 1) 100%);
+            animation: aurora-move 20s infinite alternate ease-in-out;
+        }
+        @keyframes aurora-move {
+            0% { transform: scale(1); } 100% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        /* 玻璃擬態卡片 2.0 */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border-radius: 2.5rem;
+        }
+
+        /* 輸入框美化 */
+        input {
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: white !important;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            background: rgba(255, 255, 255, 0.1) !important;
+            border-color: rgba(59, 130, 246, 0.5) !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+        }
+
+        /* 隱藏數字微調按鈕 */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* 滑軌樣式 */
+        .range-input { -webkit-appearance: none; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; }
+        .range-input::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px; background: white;
+            border-radius: 50%; box-shadow: 0 0 15px rgba(255,255,255,0.5); cursor: pointer;
+        }
+
+        /* 收據模式 */
+        .receipt-mode { background: white !important; color: #1e293b !important; }
+        .receipt-mode .aurora-bg, .receipt-mode .no-print { display: none !important; }
         .receipt-mode .print-only { display: block !important; }
+        .receipt-mode .glass-panel { background: white; border: none; box-shadow: none; backdrop-filter: none; color: #1e293b; }
+        .receipt-mode .solution-card { border: 1px solid #f1f5f9; }
+
+        #settings-drawer { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); transform: translateX(100%); }
+        #settings-drawer.open { transform: translateX(0); }
+
         .print-only { display: none; }
-        .range-input { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; outline: none; }
-        .range-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: #0f172a; border-radius: 50%; cursor: pointer; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        #settings-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
-        #settings-panel.open { transform: translateX(0); }
-        .numeric-font { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; }
     </style>
 </head>
-<body class="min-h-screen pb-24 text-slate-800">
-    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 p-4 border-b border-slate-100 flex justify-between items-center no-print">
+<body class="min-h-screen pb-32">
+
+    <div class="aurora-bg"></div>
+
+    <nav class="p-6 flex justify-between items-center no-print">
         <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl rotate-3"><span class="text-lg">🖼️</span></div>
-            <div><h1 class="text-sm font-black text-slate-900 leading-none">精品畫廊報價</h1><p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Atelier System</p></div>
-        </div>
-        <button onclick="toggleSettings(true)" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-slate-100 transition-colors"><span class="text-xl text-slate-400">⚙️</span></button>
-    </nav>
-    <div id="settings-panel" class="fixed inset-0 z-[100] no-print flex justify-end">
-        <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onclick="toggleSettings(false)"></div>
-        <div class="relative w-4/5 max-w-sm bg-white h-full shadow-2xl p-8 flex flex-col text-left">
-            <div class="flex justify-between items-center mb-10"><h2 class="text-xl font-black italic text-left">Settings</h2><button onclick="toggleSettings(false)" class="text-3xl text-slate-200 font-light">&times;</button></div>
-            <div class="space-y-8 flex-1">
-                <div><label class="text-[10px] font-black text-slate-300 block mb-3 tracking-widest uppercase">壓克力單價</label><input type="number" id="cfg-price-a" class="w-full p-4 bg-slate-50 border-0 rounded-2xl outline-none focus:ring-2 focus:ring-slate-900 font-bold"></div>
-                <div><label class="text-[10px] font-black text-slate-300 block mb-3 tracking-widest uppercase">PS 塑膠板單價</label><input type="number" id="cfg-price-b" class="w-full p-4 bg-slate-50 border-0 rounded-2xl outline-none focus:ring-2 focus:ring-slate-900 font-bold"></div>
-                <div><label class="text-[10px] font-black text-slate-300 block mb-3 tracking-widest uppercase">卡紙單價</label><input type="number" id="cfg-price-c" class="w-full p-4 bg-slate-50 border-0 rounded-2xl outline-none focus:ring-2 focus:ring-slate-900 font-bold"></div>
+            <div class="w-10 h-10 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-900/50">
+                <span class="text-xl">✨</span>
             </div>
-            <button onclick="saveSettings()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl shadow-2xl shadow-slate-200 uppercase tracking-widest text-xs">Save Settings</button>
+            <div>
+                <h1 class="text-base font-black tracking-tight text-white">ATELIER QUOTE</h1>
+                <p class="text-[9px] text-blue-400 font-bold uppercase tracking-[0.3em]">Premium Design</p>
+            </div>
+        </div>
+        <button onclick="toggleSettings(true)" class="w-10 h-10 bg-white/5 rounded-full flex items-center justify-center border border-white/10 active:scale-90 transition-transform">
+            <span class="text-slate-400">⚙️</span>
+        </button>
+    </nav>
+
+    <div id="settings-drawer" class="fixed inset-0 z-[100] no-print flex justify-end">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-md" onclick="toggleSettings(false)"></div>
+        <div class="relative w-4/5 max-w-sm bg-slate-900 h-full p-8 shadow-2xl border-l border-white/10">
+            <h2 class="text-2xl font-black italic mb-10 text-white">Settings</h2>
+            <div class="space-y-8">
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">壓克力單價</label><input type="number" id="cfg-price-a" class="w-full p-4 rounded-2xl outline-none font-bold"></div>
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">PS 塑膠板單價</label><input type="number" id="cfg-price-b" class="w-full p-4 rounded-2xl outline-none font-bold"></div>
+                <div><label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-3">卡紙單價</label><input type="number" id="cfg-price-c" class="w-full p-4 rounded-2xl outline-none font-bold"></div>
+            </div>
+            <button onclick="saveSettings()" class="w-full bg-blue-600 text-white font-black py-5 rounded-3xl mt-12 shadow-xl shadow-blue-900/40 uppercase tracking-widest text-xs">Save Changes</button>
         </div>
     </div>
-    <div class="print-only px-8 pt-20 pb-10 text-center bg-white"><h1 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Quotation</h1><div class="w-10 h-1 bg-slate-900 mx-auto mt-4 mb-8"></div><p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]" id="receipt-date"></p></div>
+
     <main class="max-w-md mx-auto p-6 space-y-8">
-        <section class="space-y-6 no-print">
-            <div class="grid grid-cols-2 gap-5 text-left">
-                <div class="col-span-1 text-left"><label class="block text-[10px] font-black text-slate-300 mb-2 ml-1 uppercase tracking-widest text-left">長度 cm</label><input type="number" id="length" inputmode="decimal" placeholder="0" class="w-full text-2xl font-black numeric-font p-6 bg-white shadow-sm border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-slate-900 outline-none transition-all"></div>
-                <div class="col-span-1 text-left"><label class="block text-[10px] font-black text-slate-300 mb-2 ml-1 uppercase tracking-widest text-left">寬度 cm</label><input type="number" id="width" inputmode="decimal" placeholder="0" class="w-full text-2xl font-black numeric-font p-6 bg-white shadow-sm border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-slate-900 outline-none transition-all"></div>
-                <div class="col-span-2 text-left"><label class="block text-[10px] font-black text-slate-300 mb-2 ml-1 uppercase tracking-widest text-left">框條單價</label><input type="number" id="framePrice" inputmode="decimal" placeholder="0" class="w-full text-2xl font-black numeric-font p-6 bg-white shadow-sm border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-slate-900 outline-none transition-all"></div>
+        
+        <div class="print-only text-center py-10">
+            <h1 class="text-4xl font-black tracking-tighter uppercase mb-2">Quotation</h1>
+            <div class="w-16 h-1.5 bg-blue-600 mx-auto rounded-full mb-6"></div>
+            <p id="receipt-date" class="text-slate-400 font-bold text-xs uppercase tracking-widest"></p>
+        </div>
+
+        <section class="glass-panel p-8 space-y-6 no-print">
+            <div class="grid grid-cols-2 gap-5">
+                <div class="col-span-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block ml-1">長度 CM</label>
+                    <input type="number" id="length" inputmode="decimal" class="w-full text-2xl font-black p-5 rounded-3xl outline-none">
+                </div>
+                <div class="col-span-1">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block ml-1">寬度 CM</label>
+                    <input type="number" id="width" inputmode="decimal" class="w-full text-2xl font-black p-5 rounded-3xl outline-none">
+                </div>
+                <div class="col-span-2">
+                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 block ml-1">框條單價</label>
+                    <input type="number" id="framePrice" inputmode="decimal" class="w-full text-2xl font-black p-5 rounded-3xl outline-none">
+                </div>
             </div>
         </section>
-        <section class="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl no-print text-left">
-            <div class="flex justify-between items-center mb-8 px-1"><h2 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Discount</h2><div class="flex items-center space-x-1 font-black text-white"><input type="number" id="discountInput" value="100" class="w-10 bg-transparent text-right numeric-font text-xl"><span class="text-xs text-slate-500">%</span></div></div>
+
+        <section class="glass-panel p-8 no-print">
+            <div class="flex justify-between items-center mb-6">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Discount</span>
+                <div class="flex items-center text-blue-400 font-black">
+                    <input type="number" id="discountInput" value="100" class="w-10 bg-transparent !border-0 text-right text-xl !p-0">
+                    <span class="text-sm ml-1">%</span>
+                </div>
+            </div>
             <input type="range" id="discountRange" min="30" max="100" value="100" step="5" class="range-input">
         </section>
-        <div class="space-y-4 text-left">
-            <div class="print-only pb-10 text-center"><p id="receipt-spec" class="text-center text-slate-800 font-black text-xl tracking-tight italic"></p><div class="border-b border-slate-100 mt-8"></div></div>
-            <div class="solution-card bg-white p-8 rounded-[2.5rem] shadow-sm flex justify-between items-center relative overflow-hidden"><div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div><div><h3 class="font-black text-slate-800">壓克力</h3><p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Option A</p></div><div class="text-right"><p id="old-1-2" class="text-[10px] text-slate-200 line-through font-bold mb-1"></p><p id="total-1-2" class="text-2xl font-black text-blue-600 numeric-font leading-none">$ 0</p></div></div>
-            <div class="solution-card bg-white p-8 rounded-[2.5rem] shadow-sm flex justify-between items-center relative overflow-hidden"><div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div><div><h3 class="font-black text-slate-800">PS 塑膠板</h3><p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Option B</p></div><div class="text-right"><p id="old-1-3" class="text-[10px] text-slate-200 line-through font-bold mb-1"></p><p id="total-1-3" class="text-2xl font-black text-emerald-600 numeric-font leading-none">$ 0</p></div></div>
-            <div class="solution-card bg-white p-8 rounded-[2.5rem] shadow-sm flex justify-between items-center relative overflow-hidden"><div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div><div><h3 class="font-black text-slate-800">藝術卡紙</h3><p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Option C</p></div><div class="text-right"><p id="old-1-4" class="text-[10px] text-slate-200 line-through font-bold mb-1"></p><p id="total-1-4" class="text-2xl font-black text-purple-600 numeric-font leading-none">$ 0</p></div></div>
+
+        <div class="space-y-4">
+            <div class="print-only pb-6 text-center">
+                <p id="receipt-spec" class="text-xl font-black text-slate-800 italic"></p>
+                <div class="h-px bg-slate-100 mt-6"></div>
+            </div>
+
+            <div class="solution-card glass-panel p-7 flex justify-between items-center relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                <div><h3 class="font-black text-white group-receipt-text">壓克力</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">Plan A</p></div>
+                <div class="text-right">
+                    <p id="old-1-2" class="text-[10px] text-slate-600 line-through font-bold mb-1"></p>
+                    <p id="total-1-2" class="text-2xl font-black text-blue-400">$ 0</p>
+                </div>
+            </div>
+
+            <div class="solution-card glass-panel p-7 flex justify-between items-center relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div>
+                <div><h3 class="font-black text-white group-receipt-text">PS 塑膠板</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">Plan B</p></div>
+                <div class="text-right">
+                    <p id="old-1-3" class="text-[10px] text-slate-600 line-through font-bold mb-1"></p>
+                    <p id="total-1-3" class="text-2xl font-black text-emerald-400">$ 0</p>
+                </div>
+            </div>
+
+            <div class="solution-card glass-panel p-7 flex justify-between items-center relative overflow-hidden group">
+                <div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div>
+                <div><h3 class="font-black text-white group-receipt-text">藝術卡紙</h3><p class="text-[9px] text-slate-500 uppercase tracking-widest mt-1">Plan C</p></div>
+                <div class="text-right">
+                    <p id="old-1-4" class="text-[10px] text-slate-600 line-through font-bold mb-1"></p>
+                    <p id="total-1-4" class="text-2xl font-black text-purple-400">$ 0</p>
+                </div>
+            </div>
         </div>
-        <div class="print-only pt-24 text-center"><p class="text-[9px] text-slate-200 font-black tracking-[0.5em] uppercase">Private Atelier Edition</p></div>
+
+        <div class="print-only pt-20 text-center text-[9px] text-slate-300 font-black uppercase tracking-[0.5em]">
+            Official Art Quote System
+        </div>
     </main>
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 flex space-x-3 no-print w-full px-8 max-w-md">
-        <button onclick="toggleReceipt()" class="flex-1 bg-slate-900 text-white font-black py-5 rounded-[2rem] shadow-2xl transition-all active:scale-95 flex items-center justify-center space-x-3"><span class="text-base" id="btn-icon">📄</span> <span id="btn-text" class="text-xs uppercase tracking-widest">Print Receipt</span></button>
+
+    <div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-full px-10 max-w-md no-print">
+        <button onclick="toggleReceipt()" class="w-full py-5 bg-white text-slate-900 font-black rounded-[2rem] shadow-[0_20px_40px_rgba(255,255,255,0.1)] active:scale-95 transition-all flex items-center justify-center space-x-3">
+            <span id="btn-icon">📄</span> <span id="btn-text" class="text-xs uppercase tracking-widest">Share Receipt</span>
+        </button>
     </div>
+
     <script>
         let config = { priceA: 150, priceB: 130, priceC: 200 };
-        const loadSettings = () => { const saved = localStorage.getItem('gallery_config_vFinal'); if(saved) config = JSON.parse(saved); document.getElementById('cfg-price-a').value = config.priceA; document.getElementById('cfg-price-b').value = config.priceB; document.getElementById('cfg-price-c').value = config.priceC; };
-        const saveSettings = () => { config.priceA = parseFloat(document.getElementById('cfg-price-a').value) || 0; config.priceB = parseFloat(document.getElementById('cfg-price-b').value) || 0; config.priceC = parseFloat(document.getElementById('cfg-price-c').value) || 0; localStorage.setItem('gallery_config_vFinal', JSON.stringify(config)); toggleSettings(false); calculate(); };
-        function toggleSettings(open) { document.getElementById('settings-panel').classList.toggle('open', open); }
-        const dom = { L: document.getElementById('length'), W: document.getElementById('width'), P: document.getElementById('framePrice'), dRange: document.getElementById('discountRange'), dInput: document.getElementById('discountInput'), t12: document.getElementById('total-1-2'), o12: document.getElementById('old-1-2'), t13: document.getElementById('total-1-3'), o13: document.getElementById('old-1-3'), t14: document.getElementById('total-1-4'), o14: document.getElementById('old-1-4'), rDate: document.getElementById('receipt-date'), rSpec: document.getElementById('receipt-spec'), btnText: document.getElementById('btn-text'), btnIcon: document.getElementById('btn-icon') };
-        const calculate = (source) => { if(source === 'range') dom.dInput.value = dom.dRange.value; if(source === 'input') dom.dRange.value = dom.dInput.value; const L = parseFloat(dom.L.value) || 0; const W = parseFloat(dom.W.value) || 0; const P = parseFloat(dom.P.value) || 0; const disc = (parseFloat(dom.dInput.value) || 0) / 100; if (L <= 0 || W <= 0) return; const frameBase = (L + W) * 2 * P; const area = L * W; const basePrices = [frameBase + (area * config.priceA), frameBase + (area * config.priceB), frameBase + (area * config.priceC)]; const fmt = (v) => `$ ${Math.round(v).toLocaleString()}`; [ [dom.t12, dom.o12], [dom.t13, dom.o13], [dom.t14, dom.o14] ].forEach((pair, i) => { pair[0].innerText = fmt(basePrices[i] * disc); pair[1].innerText = disc < 1 ? fmt(basePrices[i]) : ""; }); dom.rSpec.innerText = `${L} × ${W} cm / Price $${P}`; };
-        function toggleReceipt() { const isReceipt = document.body.classList.toggle('receipt-mode'); dom.btnText.innerText = isReceipt ? "Edit Data" : "Print Receipt"; dom.btnIcon.innerText = isReceipt ? "↩" : "📄"; if(isReceipt) { const now = new Date(); const opt = { year: 'numeric', month: 'short', day: 'numeric' }; dom.rDate.innerText = now.toLocaleDateString('en-US', opt); window.scrollTo(0,0); } }
-        [dom.L, dom.W, dom.P].forEach(el => el.addEventListener('input', () => calculate()));
-        dom.dRange.addEventListener('input', () => calculate('range'));
-        dom.dInput.addEventListener('input', () => calculate('input'));
+        const loadSettings = () => {
+            const saved = localStorage.getItem('gallery_config_premium');
+            if(saved) config = JSON.parse(saved);
+            document.getElementById('cfg-price-a').value = config.priceA;
+            document.getElementById('cfg-price-b').value = config.priceB;
+            document.getElementById('cfg-price-c').value = config.priceC;
+        };
+        const saveSettings = () => {
+            config.priceA = parseFloat(document.getElementById('cfg-price-a').value) || 0;
+            config.priceB = parseFloat(document.getElementById('cfg-price-b').value) || 0;
+            config.priceC = parseFloat(document.getElementById('cfg-price-c').value) || 0;
+            localStorage.setItem('gallery_config_premium', JSON.stringify(config));
+            toggleSettings(false); calculate();
+        };
+        function toggleSettings(open) { document.getElementById('settings-drawer').classList.toggle('open', open); }
+
+        const dom = {
+            L: document.getElementById('length'), W: document.getElementById('width'), P: document.getElementById('framePrice'),
+            dR: document.getElementById('discountRange'), dI: document.getElementById('discountInput'),
+            tA: document.getElementById('total-1-2'), oA: document.getElementById('old-1-2'),
+            tB: document.getElementById('total-1-3'), oB: document.getElementById('old-1-3'),
+            tC: document.getElementById('total-1-4'), oC: document.getElementById('old-1-4'),
+            rD: document.getElementById('receipt-date'), rS: document.getElementById('receipt-spec')
+        };
+
+        const calculate = () => {
+            dom.dI.value = dom.dR.value;
+            const L = parseFloat(dom.L.value) || 0; const W = parseFloat(dom.W.value) || 0; const P = parseFloat(dom.P.value) || 0;
+            const disc = (parseFloat(dom.dI.value) || 0) / 100;
+            if (L <= 0 || W <= 0) return;
+            const frameBase = (L + W) * 2 * P; const area = L * W;
+            const base = [frameBase + (area * config.priceA), frameBase + (area * config.priceB), frameBase + (area * config.priceC)];
+            const fmt = (v) => `$ ${Math.round(v).toLocaleString()}`;
+            [[dom.tA, dom.oA], [dom.tB, dom.oB], [dom.tC, dom.oC]].forEach((p, i) => {
+                p[0].innerText = fmt(base[i] * disc); p[1].innerText = disc < 1 ? fmt(base[i]) : "";
+            });
+            dom.rS.innerText = `${L} × ${W} CM / Unit $${P}`;
+        };
+
+        function toggleReceipt() {
+            const isR = document.body.classList.toggle('receipt-mode');
+            document.getElementById('btn-text').innerText = isR ? "Back to Edit" : "Share Receipt";
+            document.getElementById('btn-icon').innerText = isR ? "↩" : "📄";
+            if(isR) {
+                const now = new Date();
+                dom.rD.innerText = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                window.scrollTo(0,0);
+                // 修復收據模式下的文字顏色
+                document.querySelectorAll('.group-receipt-text').forEach(el => el.style.color = '#1e293b');
+            } else {
+                document.querySelectorAll('.group-receipt-text').forEach(el => el.style.color = '#ffffff');
+            }
+        }
+
+        [dom.L, dom.W, dom.P, dom.dR].forEach(el => el.addEventListener('input', calculate));
         window.onload = loadSettings;
     </script>
 </body>
