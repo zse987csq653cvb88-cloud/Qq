@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>極致山水 · 人文極簡版</title>
+    <title>極致山水 · 響應式通用版</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg: #F2F2F2; /* 淺灰背景 */
+            --bg: #F2F2F2;
             --ticket-bg: #FFFFFF;
-            --ink: #111111; /* 接近純黑 */
+            --ink: #111111;
             --placeholder: #E0E0E0;
             --line: #E5E5E5;
         }
@@ -20,11 +20,17 @@
         body {
             background-color: var(--bg);
             color: var(--ink);
-            font-family: 'Inter', sans-serif; /* UI 文字保持無襯線，清晰易讀 */
+            font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
+            /* 防止手機橫向滾動 */
+            overflow-x: hidden;
+            padding-bottom: 80px; /* 預留底部懸浮條空間 */
         }
 
-        /* ✨ 核心修改：數字改用襯線體 (Serif) */
+        @media (min-width: 1024px) {
+            body { padding-bottom: 0; }
+        }
+
         .font-serif-num { 
             font-family: 'Noto Serif TC', serif; 
             letter-spacing: 0.02em; 
@@ -32,8 +38,11 @@
 
         /* 輸入區樣式 */
         .input-group {
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem; /* 手機版間距稍減 */
             position: relative;
+        }
+        @media (min-width: 1024px) {
+            .input-group { margin-bottom: 3rem; }
         }
         
         .raw-input {
@@ -41,13 +50,16 @@
             background: transparent;
             border: none;
             border-bottom: 1px solid var(--line);
-            font-family: 'Noto Serif TC', serif; /* 輸入數字也改為襯線 */
-            font-size: 2.5rem; 
+            font-family: 'Noto Serif TC', serif;
+            font-size: 2rem; /* 手機版字體適中 */
             font-weight: 500;
             color: var(--ink);
             padding: 0.5rem 0;
             border-radius: 0;
             transition: border-color 0.4s ease;
+        }
+        @media (min-width: 1024px) {
+            .raw-input { font-size: 2.5rem; }
         }
         
         .raw-input:focus {
@@ -74,18 +86,24 @@
         /* 右側單據樣式 */
         .ticket {
             background: var(--ticket-bg);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.06);
-            padding: 3.5rem; /* 增加留白 */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+            padding: 2rem; /* 手機版內距 */
             position: relative;
-            min-height: 640px;
+            min-height: auto;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
+        @media (min-width: 1024px) {
+            .ticket {
+                padding: 3.5rem;
+                min-height: 640px;
+                box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+            }
+        }
         
-        /* 幽靈數據樣式 */
         .data-value {
-            font-family: 'Noto Serif TC', serif; /* 顯示數字改為襯線 */
+            font-family: 'Noto Serif TC', serif;
             transition: color 0.3s;
         }
         .data-value.empty {
@@ -97,15 +115,37 @@
             font-weight: 700;
         }
 
-        /* 價格行 */
         .price-row {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: 1.5rem 0;
+            padding: 1.25rem 0;
             border-bottom: 1px solid var(--line);
         }
         .price-row:last-child { border-bottom: none; }
+
+        /* 手機底部懸浮條 (Sticky Footer) */
+        .sticky-footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #E5E5E5;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            box-shadow: 0 -10px 20px rgba(0,0,0,0.02);
+            transform: translateY(100%); /* 初始隱藏 */
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sticky-footer.visible {
+            transform: translateY(0);
+        }
+        @media (min-width: 1024px) {
+            .sticky-footer { display: none; } /* 電腦版隱藏 */
+        }
 
         /* Dialog */
         dialog { 
@@ -113,161 +153,190 @@
             padding: 0; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             border-radius: 4px;
+            width: 90%;
+            max-width: 400px;
         }
         dialog::backdrop { background: rgba(255,255,255, 0.8); }
         
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        
+        /* 動畫 */
+        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body class="flex flex-col lg:flex-row min-h-screen items-center justify-center p-6 lg:p-0">
+<body class="min-h-screen">
 
-    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32">
+    <!-- 整體容器：手機版上下排列 (Block)，電腦版左右排列 (Flex) -->
+    <div class="max-w-6xl w-full mx-auto lg:flex lg:items-center lg:justify-center lg:min-h-screen p-6 lg:p-0">
         
-        <!-- 左側：輸入 (Input) -->
-        <div class="flex flex-col justify-center animate-fade-in pl-4 lg:pl-12">
-            <header class="mb-16">
-                <h1 class="text-5xl font-bold leading-tight tracking-tight mb-2 font-serif-num">
-                    極致山水
-                </h1>
-                <p class="text-gray-400 font-light tracking-widest text-sm">數位報價系統</p>
-            </header>
+        <!-- Grid 佈局：手機 1 欄，電腦 2 欄 -->
+        <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-32">
+            
+            <!-- 區塊 1：輸入 (Input) -->
+            <!-- 手機版：位於上方 -->
+            <div class="flex flex-col justify-center animate-fade-in lg:pl-12 order-1">
+                <header class="mb-10 lg:mb-16 mt-4 lg:mt-0">
+                    <h1 class="text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-2 font-serif-num text-black">
+                        極致山水
+                    </h1>
+                    <p class="text-gray-400 font-light tracking-widest text-xs lg:text-sm">數位報價系統 MOBILE</p>
+                </header>
 
-            <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-12">
-                    <div class="input-group">
-                        <label class="label-tiny">長度 (CM)</label>
-                        <input type="number" id="length" class="raw-input" placeholder="00">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-8 lg:gap-12">
+                        <div class="input-group">
+                            <label class="label-tiny">長度 (CM)</label>
+                            <input type="number" id="length" class="raw-input" placeholder="00" inputmode="decimal">
+                        </div>
+                        <div class="input-group">
+                            <label class="label-tiny">寬度 (CM)</label>
+                            <input type="number" id="width" class="raw-input" placeholder="00" inputmode="decimal">
+                        </div>
                     </div>
+
                     <div class="input-group">
-                        <label class="label-tiny">寬度 (CM)</label>
-                        <input type="number" id="width" class="raw-input" placeholder="00">
+                        <label class="label-tiny">框條單價 ($)</label>
+                        <input type="number" id="framePrice" class="raw-input" placeholder="0.0" inputmode="decimal">
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="flex justify-between mb-2">
+                            <label class="label-tiny">優惠折扣</label>
+                            <span class="font-serif-num text-lg"><span id="discountDisplay">100</span>%</span>
+                        </div>
+                        <!-- 加大滑桿觸控區 -->
+                        <div class="py-2">
+                            <input type="range" id="discountRange" min="50" max="100" value="100" step="5" class="w-full h-[1px] bg-gray-300 appearance-none cursor-pointer accent-black">
+                        </div>
                     </div>
                 </div>
 
-                <div class="input-group">
-                    <label class="label-tiny">框條單價 ($)</label>
-                    <input type="number" id="framePrice" class="raw-input" placeholder="0.0">
-                </div>
-                
-                <div class="input-group">
-                    <div class="flex justify-between mb-2">
-                        <label class="label-tiny">優惠折扣</label>
-                        <span class="font-serif-num text-lg"><span id="discountDisplay">100</span>%</span>
-                    </div>
-                    <input type="range" id="discountRange" min="50" max="100" value="100" step="5" class="w-full h-[1px] bg-gray-300 appearance-none cursor-pointer accent-black">
+                <!-- 電腦版按鈕 (手機版隱藏，改用底部懸浮) -->
+                <!-- 但根據需求，保留一個全寬按鈕在輸入區下方也是好的 UX -->
+                <div class="mt-8 lg:mt-12 flex gap-4">
+                    <button onclick="window.print()" class="bg-black text-white px-8 py-4 lg:py-5 text-sm font-bold tracking-widest hover:bg-gray-800 transition-colors w-full flex justify-between items-center group rounded-sm shadow-lg active:scale-[0.98] transition-transform">
+                        <span>列印單據</span>
+                        <span class="group-hover:translate-x-1 transition-transform">→</span>
+                    </button>
+                    <button onclick="toggleSettings()" class="border border-gray-200 px-5 lg:px-6 py-4 lg:py-5 hover:border-black transition-colors text-gray-400 hover:text-black rounded-sm">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="mt-12 flex gap-4">
-                <button onclick="window.print()" class="bg-black text-white px-8 py-5 text-sm font-bold tracking-widest hover:bg-gray-800 transition-colors w-full flex justify-between items-center group">
-                    <span>列印單據</span>
-                    <span class="group-hover:translate-x-1 transition-transform">→</span>
-                </button>
-                <button onclick="toggleSettings()" class="border border-gray-200 px-6 py-5 hover:border-black transition-colors text-gray-400 hover:text-black">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                </button>
-            </div>
-        </div>
+            <!-- 區塊 2：單據 (Receipt) -->
+            <!-- 手機版：位於下方 (Order 2) -->
+            <div class="flex items-center justify-center order-2 mb-10 lg:mb-0">
+                <div id="receipt-container" class="ticket w-full max-w-md mx-auto">
+                    
+                    <!-- 單據頭部 -->
+                    <div>
+                        <div class="flex justify-end mb-8 lg:mb-10">
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Date</div>
+                                <div id="receipt-date" class="font-serif-num text-sm">2026.01.15</div>
+                            </div>
+                        </div>
 
-        <!-- 右側：單據 (Receipt) -->
-        <div class="flex items-center justify-center">
-            <div id="receipt-container" class="ticket w-full max-w-md">
-                
-                <!-- 單據頭部 (已移除 PROJECT 標題) -->
-                <div>
-                    <div class="flex justify-end mb-10">
-                        <div class="text-right">
-                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Date</div>
-                            <div id="receipt-date" class="font-serif-num text-sm">2026.01.15</div>
+                        <!-- 規格顯示 -->
+                        <div class="bg-gray-50 p-6 lg:p-8 mb-8 lg:mb-12 rounded-sm border border-gray-100">
+                            <div class="grid grid-cols-2 gap-6 lg:gap-8 text-sm">
+                                <div>
+                                    <div class="text-[10px] font-bold uppercase text-gray-400 mb-2">Dimensions</div>
+                                    <div class="font-serif-num text-lg lg:text-xl">
+                                        <span id="disp-l" class="data-value empty">00</span> × <span id="disp-w" class="data-value empty">00</span>
+                                        <span class="text-xs text-gray-400 ml-1 font-sans">CM</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] font-bold uppercase text-gray-400 mb-2">Unit Price</div>
+                                    <div class="font-serif-num text-lg lg:text-xl">
+                                        $ <span id="disp-p" class="data-value empty">0.0</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 規格顯示 -->
-                    <div class="bg-gray-50 p-8 mb-12 rounded-sm border border-gray-100">
-                        <div class="grid grid-cols-2 gap-8 text-sm">
-                            <div>
-                                <div class="text-[10px] font-bold uppercase text-gray-400 mb-2">Dimensions</div>
-                                <div class="font-serif-num text-xl">
-                                    <span id="disp-l" class="data-value empty">00</span> × <span id="disp-w" class="data-value empty">00</span>
-                                    <span class="text-xs text-gray-400 ml-1 font-sans">CM</span>
+                        <!-- 價格列表 -->
+                        <div class="space-y-4">
+                            <!-- 1 -->
+                            <div class="price-row group">
+                                <div>
+                                    <div class="text-base lg:text-lg font-bold text-gray-900">
+                                        <span class="font-serif-num mr-2">1.</span> 壓克力裝裱
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-5 lg:pl-6">ACRYLIC GLAZING</div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="old-price-a" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
+                                    <div class="font-serif-num text-2xl lg:text-3xl">
+                                        $ <span id="price-a" class="data-value empty">00,000</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <div class="text-[10px] font-bold uppercase text-gray-400 mb-2">Unit Price</div>
-                                <div class="font-serif-num text-xl">
-                                    $ <span id="disp-p" class="data-value empty">0.0</span>
+                            <!-- 2 -->
+                            <div class="price-row group">
+                                <div>
+                                    <div class="text-base lg:text-lg font-bold text-gray-900">
+                                        <span class="font-serif-num mr-2">2.</span> PS 塑膠板
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-5 lg:pl-6">POLYSTYRENE</div>
+                                </div>
+                                <div class="text-right">
+                                    <div id="old-price-b" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
+                                    <div class="font-serif-num text-2xl lg:text-3xl">
+                                        $ <span id="price-b" class="data-value empty">00,000</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- 價格列表 -->
-                    <div class="space-y-4">
-                        <!-- 1 -->
-                        <div class="price-row group">
-                            <div>
-                                <div class="text-lg font-bold text-gray-900 group-hover:text-black">
-                                    <span class="font-serif-num mr-2">1.</span> 壓克力裝裱
+                            <!-- 3 -->
+                            <div class="price-row group">
+                                <div>
+                                    <div class="text-base lg:text-lg font-bold text-gray-900">
+                                        <span class="font-serif-num mr-2">3.</span> 藝術卡紙
+                                    </div>
+                                    <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-5 lg:pl-6">MUSEUM MATBOARD</div>
                                 </div>
-                                <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-6">ACRYLIC GLAZING</div>
-                            </div>
-                            <div class="text-right">
-                                <div id="old-price-a" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
-                                <div class="font-serif-num text-3xl">
-                                    $ <span id="price-a" class="data-value empty">00,000</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 2 -->
-                        <div class="price-row group">
-                            <div>
-                                <div class="text-lg font-bold text-gray-900 group-hover:text-black">
-                                    <span class="font-serif-num mr-2">2.</span> PS 塑膠板
-                                </div>
-                                <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-6">POLYSTYRENE</div>
-                            </div>
-                            <div class="text-right">
-                                <div id="old-price-b" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
-                                <div class="font-serif-num text-3xl">
-                                    $ <span id="price-b" class="data-value empty">00,000</span>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- 3 -->
-                        <div class="price-row group">
-                            <div>
-                                <div class="text-lg font-bold text-gray-900 group-hover:text-black">
-                                    <span class="font-serif-num mr-2">3.</span> 藝術卡紙
-                                </div>
-                                <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-6">MUSEUM MATBOARD</div>
-                            </div>
-                            <div class="text-right">
-                                <div id="old-price-c" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
-                                <div class="font-serif-num text-3xl">
-                                    $ <span id="price-c" class="data-value empty">00,000</span>
+                                <div class="text-right">
+                                    <div id="old-price-c" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
+                                    <div class="font-serif-num text-2xl lg:text-3xl">
+                                        $ <span id="price-c" class="data-value empty">00,000</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- 底部簽署區 -->
+                    <div class="mt-12 lg:mt-16 flex justify-between items-end">
+                        <div class="text-[10px] text-gray-400 uppercase tracking-widest">
+                            <div>ID <span id="ticket-id" class="font-serif-num ml-1 text-gray-500">000-000</span></div>
+                        </div>
+                        <div class="w-24 lg:w-32 border-b border-black pb-2 text-right">
+                            <span class="font-serif-num text-xs font-bold text-black">Shan Shui</span>
+                        </div>
+                    </div>
+
                 </div>
-
-                <!-- 底部簽署區 -->
-                <div class="mt-16 flex justify-between items-end">
-                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">
-                        <div>ID <span id="ticket-id" class="font-serif-num ml-1 text-gray-500">000-000</span></div>
-                    </div>
-                    <div class="w-32 border-b border-black pb-2 text-right">
-                        <span class="font-serif-num text-xs font-bold text-black">Shan Shui</span>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>
 
+    <!-- ✨ MOBILE STICKY FOOTER (手機底部懸浮條) -->
+    <div id="mobile-sticky-footer" class="sticky-footer">
+        <div class="flex flex-col">
+            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-sans font-bold">方案 1 預估</span>
+            <span class="font-serif-num text-xl font-bold text-black leading-none mt-1">$ <span id="sticky-price">0</span></span>
+        </div>
+        <button onclick="document.getElementById('receipt-container').scrollIntoView({behavior: 'smooth'})" class="bg-black text-white px-5 py-2 text-xs font-bold tracking-widest rounded-sm active:scale-95 transition-transform">
+            查看詳情
+        </button>
+    </div>
+
     <!-- 設定 Modal -->
-    <dialog id="settingsDialog" class="w-full max-w-sm">
-        <div class="bg-white p-10">
+    <dialog id="settingsDialog">
+        <div class="bg-white p-8">
             <h3 class="text-xl font-bold mb-8 font-serif-num">基價參數設定</h3>
             <div class="space-y-6 text-sm">
                 <div>
@@ -284,8 +353,8 @@
                 </div>
             </div>
             <div class="mt-10 flex justify-end gap-6">
-                <button onclick="document.getElementById('settingsDialog').close()" class="text-xs font-bold text-gray-400 hover:text-black tracking-widest">取消</button>
-                <button onclick="saveConfig()" class="bg-black text-white px-8 py-3 text-xs font-bold tracking-widest hover:bg-gray-800">保存設定</button>
+                <button onclick="document.getElementById('settingsDialog').close()" class="text-xs font-bold text-gray-400 hover:text-black tracking-widest py-2">取消</button>
+                <button onclick="saveConfig()" class="bg-black text-white px-8 py-3 text-xs font-bold tracking-widest hover:bg-gray-800 rounded-sm">保存設定</button>
             </div>
         </div>
     </dialog>
@@ -347,6 +416,14 @@
             updateValue('disp-w', W);
             updateValue('disp-p', P, true);
 
+            // 控制手機底部懸浮條顯示
+            const stickyFooter = document.getElementById('mobile-sticky-footer');
+            if (L > 0 && W > 0 && P > 0) {
+                stickyFooter.classList.add('visible');
+            } else {
+                stickyFooter.classList.remove('visible');
+            }
+
             if (L > 0 && W > 0) {
                 const frameTotal = (L + W) * 2 * P; 
                 const area = L * W; 
@@ -359,6 +436,10 @@
 
                 const fmt = n => `$ ${Math.round(n).toLocaleString()}`;
 
+                // Update Sticky Footer Price (Plan 1)
+                const finalPriceA = prices[0] * (D/100);
+                document.getElementById('sticky-price').innerText = Math.round(finalPriceA).toLocaleString();
+
                 [['price-a','old-price-a'], ['price-b','old-price-b'], ['price-c','old-price-c']].forEach((ids, i) => {
                     const finalPrice = prices[i] * (D/100);
                     // Update final price
@@ -369,13 +450,14 @@
                     oldEl.innerText = D < 100 ? fmt(prices[i]) : "";
                 });
             } else {
-                // Reset prices if input invalid
+                // Reset
                 updateValue('price-a', 0, true);
                 updateValue('price-b', 0, true);
                 updateValue('price-c', 0, true);
                 document.getElementById('old-price-a').innerText = "";
                 document.getElementById('old-price-b').innerText = "";
                 document.getElementById('old-price-c').innerText = "";
+                document.getElementById('sticky-price').innerText = "0";
             }
         }
 
