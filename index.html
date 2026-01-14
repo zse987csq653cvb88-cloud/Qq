@@ -3,217 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>畫廊報價 Pro</title>
-    
+    <title>精品畫廊報價系統</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="畫廊報價">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3593/3593444.png">
-    <meta name="theme-color" content="#0f172a">
-
+    <meta name="theme-color" content="#ffffff">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* 修正 IDE 警告：補齊標準 appearance 屬性 */
-        input::-webkit-outer-spin-button, 
-        input::-webkit-inner-spin-button { 
-            -webkit-appearance: none; 
-            appearance: none; 
-            margin: 0; 
-        }
-
-        input[type=number] { 
-            -moz-appearance: textfield; 
-            appearance: textfield;
-        }
-        
-        /* 自定義滑軌樣式補齊相容性 */
-        .range-input {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 8px;
-            outline: none;
-        }
-
-        .range-input::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 24px;
-            height: 24px;
-            background: #3b82f6;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 3px solid white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-
-        /* 防止手機端選取文字與長按選單影響操作 */
-        body { 
-            -webkit-tap-highlight-color: transparent; 
-            user-select: none; 
-            overscroll-behavior-y: contain; /* 防止下拉重新整理 */
-        }
-        input { user-select: auto; }
-
-        .solution-card { transition: all 0.2s ease; }
-        .solution-card:active { transform: scale(0.97); opacity: 0.9; }
+        body { font-family: 'Noto Sans TC', sans-serif; -webkit-tap-highlight-color: transparent; background-color: #f8fafc; letter-spacing: 0.02em; }
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+        .solution-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); border: 1px solid rgba(0,0,0,0.03); }
+        .solution-card:active { transform: scale(0.96); background-color: #f1f5f9; }
+        .receipt-mode { background-color: #ffffff; }
+        .receipt-mode .no-print { display: none !important; }
+        .receipt-mode .print-only { display: block !important; }
+        .print-only { display: none; }
+        .range-input { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; background: #e2e8f0; border-radius: 10px; outline: none; }
+        .range-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: #0f172a; border-radius: 50%; cursor: pointer; border: 4px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #settings-panel { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); transform: translateX(100%); }
+        #settings-panel.open { transform: translateX(0); }
+        .numeric-font { font-family: 'Inter', system-ui, -apple-system, sans-serif; font-variant-numeric: tabular-nums; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-12 font-sans text-slate-900">
-
-    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-md flex justify-between items-center">
-        <div class="flex items-center space-x-2">
-            <span class="text-2xl text-blue-400">⚖️</span>
-            <div>
-                <h1 class="text-sm font-bold leading-none tracking-tight">畫廊專業估價</h1>
-                <span class="text-[9px] text-slate-500 font-mono uppercase">Gallery Expert v1.2.1</span>
-            </div>
+<body class="min-h-screen pb-24 text-slate-800">
+    <nav class="bg-white/90 backdrop-blur-md sticky top-0 z-50 p-4 border-b border-slate-100 flex justify-between items-center no-print">
+        <div class="flex items-center space-x-3">
+            <div class="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white shadow-xl rotate-3"><span class="text-lg">🖼️</span></div>
+            <div><h1 class="text-sm font-black text-slate-900 leading-none">精品畫廊報價</h1><p class="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Atelier System</p></div>
         </div>
-        <div id="discount-badge" class="px-3 py-1 rounded-full text-[11px] font-black bg-slate-700 transition-all duration-300">
-            100% 原價
-        </div>
+        <button onclick="toggleSettings(true)" class="w-10 h-10 flex items-center justify-center rounded-full active:bg-slate-100 transition-colors"><span class="text-xl text-slate-400">⚙️</span></button>
     </nav>
-
-    <main class="max-w-md mx-auto p-4 space-y-5">
-        
-        <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">
-            <div class="flex items-center space-x-2 mb-2">
-                <div class="w-1 h-4 bg-blue-500 rounded-full"></div>
-                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">尺寸與框條單價</h2>
+    <div id="settings-panel" class="fixed inset-0 z-[100] no-print flex justify-end">
+        <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-sm" onclick="toggleSettings(false)"></div>
+        <div class="relative w-4/5 max-w-sm bg-white h-full shadow-2xl p-8 flex flex-col text-left">
+            <div class="flex justify-between items-center mb-10"><h2 class="text-xl font-black italic text-left">Settings</h2><button onclick="toggleSettings(false)" class="text-3xl text-slate-200 font-light">&times;</button></div>
+            <div class="space-y-8 flex-1">
+                <div><label class="text-[10px] font-black text-slate-300 block mb-3 tracking-widest uppercase">壓克力單價</label><input type="number" id="cfg-price-a" class="w-full p-4 bg-slate-50 border-0 rounded-2xl outline-none focus:ring-2 focus:ring-slate-900 font-bold"></div>
+                <div><label class="text-[10px] font-black text-slate-300 block mb-3 tracking-widest uppercase">PS 塑膠板單價</label><input type="number" id="cfg-price-b" class="w-full p-4 bg-slate-50 border-0 rounded-2xl outline-none focus:ring-2 focus:ring-slate-900 font-bold"></div>
+                <div><label class="text-[10px] font-black text-slate-300 block mb-3 tracking-widest uppercase">卡紙單價</label><input type="number" id="cfg-price-c" class="w-full p-4 bg-slate-50 border-0 rounded-2xl outline-none focus:ring-2 focus:ring-slate-900 font-bold"></div>
             </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-1">
-                    <label class="block text-[11px] font-bold text-slate-400 mb-1 ml-1">長度 (cm)</label>
-                    <input type="number" id="length" inputmode="decimal" placeholder="0" class="w-full text-xl font-mono p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-blue-500 focus:bg-white transition-all outline-none">
-                </div>
-                <div class="col-span-1">
-                    <label class="block text-[11px] font-bold text-slate-400 mb-1 ml-1">寬度 (cm)</label>
-                    <input type="number" id="width" inputmode="decimal" placeholder="0" class="w-full text-xl font-mono p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-blue-500 focus:bg-white transition-all outline-none">
-                </div>
-                <div class="col-span-2">
-                    <label class="block text-[11px] font-bold text-slate-400 mb-1 ml-1">框條單價 (每公分)</label>
-                    <input type="number" id="framePrice" inputmode="decimal" placeholder="請輸入金額" class="w-full text-xl font-mono p-4 bg-slate-50 border-2 border-slate-50 rounded-2xl focus:border-blue-500 focus:bg-white transition-all outline-none">
-                </div>
+            <button onclick="saveSettings()" class="w-full bg-slate-900 text-white font-black py-5 rounded-3xl shadow-2xl shadow-slate-200 uppercase tracking-widest text-xs">Save Settings</button>
+        </div>
+    </div>
+    <div class="print-only px-8 pt-20 pb-10 text-center bg-white"><h1 class="text-3xl font-black text-slate-900 tracking-tighter uppercase">Quotation</h1><div class="w-10 h-1 bg-slate-900 mx-auto mt-4 mb-8"></div><p class="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]" id="receipt-date"></p></div>
+    <main class="max-w-md mx-auto p-6 space-y-8">
+        <section class="space-y-6 no-print">
+            <div class="grid grid-cols-2 gap-5 text-left">
+                <div class="col-span-1 text-left"><label class="block text-[10px] font-black text-slate-300 mb-2 ml-1 uppercase tracking-widest text-left">長度 cm</label><input type="number" id="length" inputmode="decimal" placeholder="0" class="w-full text-2xl font-black numeric-font p-6 bg-white shadow-sm border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-slate-900 outline-none transition-all"></div>
+                <div class="col-span-1 text-left"><label class="block text-[10px] font-black text-slate-300 mb-2 ml-1 uppercase tracking-widest text-left">寬度 cm</label><input type="number" id="width" inputmode="decimal" placeholder="0" class="w-full text-2xl font-black numeric-font p-6 bg-white shadow-sm border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-slate-900 outline-none transition-all"></div>
+                <div class="col-span-2 text-left"><label class="block text-[10px] font-black text-slate-300 mb-2 ml-1 uppercase tracking-widest text-left">框條單價</label><input type="number" id="framePrice" inputmode="decimal" placeholder="0" class="w-full text-2xl font-black numeric-font p-6 bg-white shadow-sm border border-slate-100 rounded-[2rem] focus:ring-2 focus:ring-slate-900 outline-none transition-all"></div>
             </div>
         </section>
-
-        <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center space-x-2">
-                    <div class="w-1 h-4 bg-red-500 rounded-full"></div>
-                    <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">成交折扣</h2>
-                </div>
-                <div class="flex items-center bg-red-50 px-3 py-1 rounded-xl">
-                    <input type="number" id="discountInput" value="100" class="w-8 bg-transparent text-center font-black text-red-600 outline-none">
-                    <span class="text-xs font-black text-red-600">%</span>
-                </div>
-            </div>
+        <section class="bg-slate-900 rounded-[2.5rem] p-8 shadow-2xl no-print text-left">
+            <div class="flex justify-between items-center mb-8 px-1"><h2 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Discount</h2><div class="flex items-center space-x-1 font-black text-white"><input type="number" id="discountInput" value="100" class="w-10 bg-transparent text-right numeric-font text-xl"><span class="text-xs text-slate-500">%</span></div></div>
             <input type="range" id="discountRange" min="30" max="100" value="100" step="5" class="range-input">
         </section>
-
-        <div class="space-y-3">
-            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">組合報價方案 (總計)</h2>
-            
-            <div class="solution-card bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex justify-between items-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-2 h-full bg-blue-500"></div>
-                <div>
-                    <h3 class="font-bold text-slate-800 text-base">框條 + 壓克力</h3>
-                    <p class="text-[10px] text-slate-400 font-medium">組合 (1) + (2)</p>
-                </div>
-                <div class="text-right">
-                    <p id="old-1-2" class="text-[10px] text-slate-300 line-through font-mono"></p>
-                    <p id="total-1-2" class="text-xl font-black text-blue-600 font-mono leading-none mt-1">NT$ 0</p>
-                </div>
-            </div>
-
-            <div class="solution-card bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex justify-between items-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-2 h-full bg-emerald-500"></div>
-                <div>
-                    <h3 class="font-bold text-slate-800 text-base">框條 + PS 塑膠板</h3>
-                    <p class="text-[10px] text-slate-400 font-medium">組合 (1) + (3)</p>
-                </div>
-                <div class="text-right">
-                    <p id="old-1-3" class="text-[10px] text-slate-300 line-through font-mono"></p>
-                    <p id="total-1-3" class="text-xl font-black text-emerald-600 font-mono leading-none mt-1">NT$ 0</p>
-                </div>
-            </div>
-
-            <div class="solution-card bg-white p-5 rounded-3xl shadow-sm border border-slate-100 flex justify-between items-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-2 h-full bg-purple-500"></div>
-                <div>
-                    <h3 class="font-bold text-slate-800 text-base">框條 + 卡紙</h3>
-                    <p class="text-[10px] text-slate-400 font-medium">組合 (1) + (4)</p>
-                </div>
-                <div class="text-right">
-                    <p id="old-1-4" class="text-[10px] text-slate-300 line-through font-mono"></p>
-                    <p id="total-1-4" class="text-xl font-black text-purple-600 font-mono leading-none mt-1">NT$ 0</p>
-                </div>
-            </div>
+        <div class="space-y-4 text-left">
+            <div class="print-only pb-10 text-center"><p id="receipt-spec" class="text-center text-slate-800 font-black text-xl tracking-tight italic"></p><div class="border-b border-slate-100 mt-8"></div></div>
+            <div class="solution-card bg-white p-8 rounded-[2.5rem] shadow-sm flex justify-between items-center relative overflow-hidden"><div class="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div><div><h3 class="font-black text-slate-800">壓克力</h3><p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Option A</p></div><div class="text-right"><p id="old-1-2" class="text-[10px] text-slate-200 line-through font-bold mb-1"></p><p id="total-1-2" class="text-2xl font-black text-blue-600 numeric-font leading-none">$ 0</p></div></div>
+            <div class="solution-card bg-white p-8 rounded-[2.5rem] shadow-sm flex justify-between items-center relative overflow-hidden"><div class="absolute top-0 left-0 w-1.5 h-full bg-emerald-500"></div><div><h3 class="font-black text-slate-800">PS 塑膠板</h3><p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Option B</p></div><div class="text-right"><p id="old-1-3" class="text-[10px] text-slate-200 line-through font-bold mb-1"></p><p id="total-1-3" class="text-2xl font-black text-emerald-600 numeric-font leading-none">$ 0</p></div></div>
+            <div class="solution-card bg-white p-8 rounded-[2.5rem] shadow-sm flex justify-between items-center relative overflow-hidden"><div class="absolute top-0 left-0 w-1.5 h-full bg-purple-500"></div><div><h3 class="font-black text-slate-800">藝術卡紙</h3><p class="text-[9px] text-slate-300 font-bold uppercase tracking-widest mt-1">Option C</p></div><div class="text-right"><p id="old-1-4" class="text-[10px] text-slate-200 line-through font-bold mb-1"></p><p id="total-1-4" class="text-2xl font-black text-purple-600 numeric-font leading-none">$ 0</p></div></div>
         </div>
-
+        <div class="print-only pt-24 text-center"><p class="text-[9px] text-slate-200 font-black tracking-[0.5em] uppercase">Private Atelier Edition</p></div>
     </main>
-
+    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 flex space-x-3 no-print w-full px-8 max-w-md">
+        <button onclick="toggleReceipt()" class="flex-1 bg-slate-900 text-white font-black py-5 rounded-[2rem] shadow-2xl transition-all active:scale-95 flex items-center justify-center space-x-3"><span class="text-base" id="btn-icon">📄</span> <span id="btn-text" class="text-xs uppercase tracking-widest">Print Receipt</span></button>
+    </div>
     <script>
-        const dom = {
-            L: document.getElementById('length'),
-            W: document.getElementById('width'),
-            P: document.getElementById('framePrice'),
-            dRange: document.getElementById('discountRange'),
-            dInput: document.getElementById('discountInput'),
-            badge: document.getElementById('discount-badge'),
-            t12: document.getElementById('total-1-2'), o12: document.getElementById('old-1-2'),
-            t13: document.getElementById('total-1-3'), o13: document.getElementById('old-1-3'),
-            t14: document.getElementById('total-1-4'), o14: document.getElementById('old-1-4'),
-        };
-
-        const calculate = (source) => {
-            if(source === 'range') dom.dInput.value = dom.dRange.value;
-            if(source === 'input') dom.dRange.value = dom.dInput.value;
-
-            const L = parseFloat(dom.L.value) || 0;
-            const W = parseFloat(dom.W.value) || 0;
-            const P = parseFloat(dom.P.value) || 0;
-            const disc = (Math.max(0, Math.min(100, parseFloat(dom.dInput.value) || 0))) / 100;
-
-            // UI 狀態更新
-            const isDiscounted = disc < 1;
-            dom.badge.innerText = isDiscounted ? `${Math.round(disc*100)}% 優惠` : "100% 原價";
-            dom.badge.className = `px-3 py-1 rounded-full text-[11px] font-black transition-all ${isDiscounted ? 'bg-red-500 text-white shadow-lg shadow-red-200' : 'bg-slate-700 text-slate-300'}`;
-
-            if (L <= 0 || W <= 0) return;
-
-            const frame = (L + W) * 2 * P;
-            const area = L * W;
-            const basePrices = [
-                frame + (area * 150), // A: 壓克力
-                frame + (area * 130), // B: PS板
-                frame + (area * 200)  // C: 卡紙
-            ];
-
-            const fmt = (v) => `NT$ ${Math.round(v).toLocaleString()}`;
-            
-            [ [dom.t12, dom.o12], [dom.t13, dom.o13], [dom.t14, dom.o14] ].forEach((pair, i) => {
-                const final = basePrices[i] * disc;
-                pair[0].innerText = fmt(final);
-                pair[1].innerText = isDiscounted ? fmt(basePrices[i]) : "";
-            });
-        };
-
-        // 綁定事件
+        let config = { priceA: 150, priceB: 130, priceC: 200 };
+        const loadSettings = () => { const saved = localStorage.getItem('gallery_config_vFinal'); if(saved) config = JSON.parse(saved); document.getElementById('cfg-price-a').value = config.priceA; document.getElementById('cfg-price-b').value = config.priceB; document.getElementById('cfg-price-c').value = config.priceC; };
+        const saveSettings = () => { config.priceA = parseFloat(document.getElementById('cfg-price-a').value) || 0; config.priceB = parseFloat(document.getElementById('cfg-price-b').value) || 0; config.priceC = parseFloat(document.getElementById('cfg-price-c').value) || 0; localStorage.setItem('gallery_config_vFinal', JSON.stringify(config)); toggleSettings(false); calculate(); };
+        function toggleSettings(open) { document.getElementById('settings-panel').classList.toggle('open', open); }
+        const dom = { L: document.getElementById('length'), W: document.getElementById('width'), P: document.getElementById('framePrice'), dRange: document.getElementById('discountRange'), dInput: document.getElementById('discountInput'), t12: document.getElementById('total-1-2'), o12: document.getElementById('old-1-2'), t13: document.getElementById('total-1-3'), o13: document.getElementById('old-1-3'), t14: document.getElementById('total-1-4'), o14: document.getElementById('old-1-4'), rDate: document.getElementById('receipt-date'), rSpec: document.getElementById('receipt-spec'), btnText: document.getElementById('btn-text'), btnIcon: document.getElementById('btn-icon') };
+        const calculate = (source) => { if(source === 'range') dom.dInput.value = dom.dRange.value; if(source === 'input') dom.dRange.value = dom.dInput.value; const L = parseFloat(dom.L.value) || 0; const W = parseFloat(dom.W.value) || 0; const P = parseFloat(dom.P.value) || 0; const disc = (parseFloat(dom.dInput.value) || 0) / 100; if (L <= 0 || W <= 0) return; const frameBase = (L + W) * 2 * P; const area = L * W; const basePrices = [frameBase + (area * config.priceA), frameBase + (area * config.priceB), frameBase + (area * config.priceC)]; const fmt = (v) => `$ ${Math.round(v).toLocaleString()}`; [ [dom.t12, dom.o12], [dom.t13, dom.o13], [dom.t14, dom.o14] ].forEach((pair, i) => { pair[0].innerText = fmt(basePrices[i] * disc); pair[1].innerText = disc < 1 ? fmt(basePrices[i]) : ""; }); dom.rSpec.innerText = `${L} × ${W} cm / Price $${P}`; };
+        function toggleReceipt() { const isReceipt = document.body.classList.toggle('receipt-mode'); dom.btnText.innerText = isReceipt ? "Edit Data" : "Print Receipt"; dom.btnIcon.innerText = isReceipt ? "↩" : "📄"; if(isReceipt) { const now = new Date(); const opt = { year: 'numeric', month: 'short', day: 'numeric' }; dom.rDate.innerText = now.toLocaleDateString('en-US', opt); window.scrollTo(0,0); } }
         [dom.L, dom.W, dom.P].forEach(el => el.addEventListener('input', () => calculate()));
         dom.dRange.addEventListener('input', () => calculate('range'));
         dom.dInput.addEventListener('input', () => calculate('input'));
-        
-        // 禁止雙擊縮放，提升 App 體感
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', (e) => {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 300) e.preventDefault();
-            lastTouchEnd = now;
-        }, false);
+        window.onload = loadSettings;
     </script>
 </body>
 </html>
