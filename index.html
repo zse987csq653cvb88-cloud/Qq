@@ -1,414 +1,224 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>極致山水 · 數位藝廊系統 (Oriental Minimalist Redesign)</title>
+/* ========================================= */
+/* 1. 全局設定與變數 (Global Settings)       */
+/* ========================================= */
+
+/* 引入字體系統：Zen Old Mincho (襯線) & Noto Sans JP (無襯線) */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Shippori+Mincho:wght@400;500;700&family=Zen+Old+Mincho:wght@400;700;900&display=swap');
+
+:root {
+    /* --- COLOR SYSTEM (Source: Code B) --- */
+    --color-bg-paper:        #F6EDE1; /* Torinoko paper */
+    --color-bg-paper-aged:   #E9E5DA; /* Card background */
+    --color-bg-paper-pure:   #FFFFFF; /* Added from Code A for Focus states */
     
-    <script src="https://cdn.tailwindcss.com"></script>
+    --color-text-primary:    #2B2B2B; /* Charcoal */
+    --color-text-secondary:  #554B3F; /* Diluted ink */
+    --color-text-disabled:   #7D6C5F; /* Renamed from Code A's --ink-disabled */
     
-    <style>
-        /* ========================================= */
-        /* 1. 設計系統導入 (Design Tokens Injection)  */
-        /* Source: Code B (Visual Style)          */
-        /* ========================================= */
-        
-        /* 引入 Code B 指定的字體：Zen Old Mincho (襯線) & Noto Sans JP (無襯線) */
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=Zen+Old+Mincho:wght@400;700;900&display=swap');
+    --color-accent-cinnabar: #E34234; /* Vermilion Red */
+    --color-accent-brass:    #CD9575; /* Antique Brass */
+    --color-border:          #DDCFC5; /* Subtle dividers */
 
-        :root {
-            /* --- Color Palette (From Code B) --- */
-            /* Paper (Kami) */
-            --paper-default: #F6EDE1;   /* Torinoko paper */
-            --paper-aged:    #E9E5DA;   /* Card background */
-            --paper-pure:    #FFFFFF;
-            
-            /* Ink (Sumi) */
-            --ink-primary:   #2B2B2B;   /* Charcoal */
-            --ink-wash:      #554B3F;   /* Diluted ink */
-            --ink-disabled:  #7D6C5F;
-            
-            /* Accents */
-            --cinnabar:      #E34234;   /* Vermilion Red (Primary Action) */
-            --brass:         #CD9575;   /* Antique Brass (Secondary Accent) */
-            --border-wash:   #DDCFC5;   /* Subtle dividers */
+    /* --- TYPOGRAPHY (Source: Code B - Golden Ratio) --- */
+    --font-serif:   'Zen Old Mincho', 'Shippori Mincho', 'Times New Roman', serif;
+    --font-sans:    'Noto Sans JP', sans-serif;
+    
+    --text-display: 6.854rem; /* ~110px */
+    --text-h1:      4.236rem; /* ~68px */
+    --text-h2:      2.618rem; /* ~42px */
+    --text-h3:      1.618rem; /* ~26px */
+    --text-body:    1.000rem; /* 16px */
+    --text-caption: 0.800rem; /* 12.8px */
 
-            /* --- Typography (From Code B) --- */
-            --font-serif: 'Zen Old Mincho', 'Times New Roman', serif;
-            --font-sans:  'Noto Sans JP', sans-serif;
-            
-            /* --- Spacing System (Ma) --- */
-            --space-unit: 8px;
-            --border-radius: 4px; /* 極簡風格通常圓角較小，不使用原本的大圓角 */
-        }
+    /* --- SPACING (Source: Code B - 8pt Grid) --- */
+    --space-unit: 8px;
+    --space-xs:   0.5rem;
+    --space-s:    1.0rem;
+    --space-m:    1.5rem;
+    --space-l:    2.0rem;
+    --space-xl:   3.0rem;
+    --space-2xl:  4.0rem;
+    --space-3xl:  6.0rem;
+    --space-ma:   8.0rem; /* 128px 留白專用 */
 
-        /* 基礎設定重置 */
-        body {
-            font-family: var(--font-sans);
-            color: var(--ink-primary);
-            line-height: 1.75; /* Code B: "normal": 1.75 */
-            background-color: var(--paper-default);
-            background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.08"/></svg>');
-            overflow-x: hidden;
-            min-height: 100vh;
-            padding-bottom: 120px;
-        }
+    /* --- UI TOKENS --- */
+    --border-radius: 4px; /* From Code A, aligns with Minimalist style */
+}
 
-        /* ========================================= */
-        /* 2. 🛡️ 防禦性佈局引擎 (Defensive Layout)   */
-        /* Source: Code A (Structure)             */
-        /* [CRITICAL] DO NOT REMOVE               */
-        /* ========================================= */
+/* 基礎設定重置 */
+body {
+    font-family: var(--font-sans);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-paper);
+    line-height: 1.75;
+    
+    /* Texture & Structure (From Code A) */
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.08"/></svg>');
+    overflow-x: hidden;
+    min-height: 100vh;
+    padding-bottom: 120px;
+}
 
-        main#layout-container {
-            display: flex !important;
-            flex-direction: column !important;
-            justify-content: flex-start !important;
-            align-items: center !important;
-            gap: 4rem !important; /* Adjusted to Code B's "2xl" spacing */
-            width: 90% !important;
-            max-width: 500px !important;
-            margin: 4rem auto !important;
-            position: relative !important;
-            z-index: 10;
-        }
+/* ========================================= */
+/* 2. 排版系統 (Typography)                  */
+/* Source: Code B Wins                       */
+/* ========================================= */
 
-        .layout-block {
-            position: relative !important;
-            width: 100% !important;
-            display: block !important;
-            flex-shrink: 0 !important;
-            margin-bottom: 1.5rem !important;
-        }
+h1, h2, h3, .en-title {
+    font-family: var(--font-serif);
+    color: var(--color-text-primary);
+    font-weight: 500; /* Code B uses 500 */
+    line-height: 1.1;
+    letter-spacing: -0.02em; /* Code B style */
+}
 
-        /* ========================================= */
-        /* 3. 風格覆蓋 (Skinning)                    */
-        /* Applying Code B styles to Code A IDs   */
-        /* ========================================= */
+/* Code A Specific Overrides mapped to Code B Variables */
+h1.text-2xl { 
+    /* Code A wanted 2.618rem, which matches Code B's H2 variable */
+    font-size: var(--text-h2) !important; 
+    line-height: 1.2;
+    letter-spacing: 0.05em; /* Keep A's spacing for this specific element */
+}
 
-        /* 標題系統 (Typography Scale) */
-        h1, h2, h3, .en-title {
-            font-family: var(--font-serif);
-            color: var(--ink-primary);
-            font-weight: 700;
-            letter-spacing: 0.05em;
-        }
+h3.text-lg {
+    font-size: 1.2rem !important;
+    letter-spacing: 0.1em;
+}
 
-        /* H1 模擬 Code B 的 4.236rem，但因手機版調整為適中大小 */
-        h1.text-2xl { 
-            font-size: 2.618rem !important; /* Golden Ratio H2 size for mobile title */
-            line-height: 1.2;
-        }
+.price-value {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    color: var(--color-text-primary);
+}
 
-        h3.text-lg {
-            font-size: 1.2rem !important;
-            letter-spacing: 0.1em;
-        }
+.gold-highlight {
+    color: var(--color-accent-cinnabar) !important;
+    -webkit-text-fill-color: var(--color-accent-cinnabar) !important; 
+    font-weight: 700;
+}
 
-        /* 卡片樣式重塑 (Re-skinning .xuan-card) */
-        .xuan-card {
-            background: rgba(233, 229, 218, 0.6); /* --paper-aged with opacity */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-wash);
-            box-shadow: 
-                0 4px 6px -1px rgba(43, 43, 43, 0.05), 
-                0 10px 15px -3px rgba(43, 43, 43, 0.05); /* Softer shadows */
-            border-radius: 2px; /* 更銳利的邊角，符合極簡風格 */
-            padding: 2.5rem;
-            transition: all 0.4s ease;
-        }
-        
-        .xuan-card:focus-within {
-            background: var(--paper-pure);
-            border-color: var(--brass);
-            box-shadow: 0 20px 40px -10px rgba(205, 149, 117, 0.15); /* Brass tinted shadow */
-        }
+/* ========================================= */
+/* 3. 🛡️ 防禦性佈局引擎 (Defensive Layout)   */
+/* Source: Code A (Structure preserved)      */
+/* ========================================= */
 
-        /* 輸入框優化 (Inputs) */
-        label {
-            font-family: var(--font-serif); /* Label 用襯線體更有氣質 */
-            color: var(--ink-wash);
-            font-size: 0.85rem;
-            letter-spacing: 0.15em;
-            margin-bottom: 0.5rem;
-        }
+main#layout-container {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: var(--space-2xl) !important; /* Mapped 4rem to var */
+    width: 90% !important;
+    max-width: 500px !important;
+    margin: var(--space-2xl) auto !important;
+    position: relative !important;
+    z-index: 10;
+}
 
-        input {
-            font-family: var(--font-serif); /* 數字也改用襯線體 */
-            color: var(--ink-primary);
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid var(--border-wash);
-            border-radius: 0;
-            padding: 0.5rem 0;
-            font-size: 1.618rem; /* Golden Ratio */
-            transition: all 0.3s ease;
-        }
+.layout-block {
+    position: relative !important;
+    width: 100% !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+    margin-bottom: var(--space-m) !important;
+}
 
-        input:focus {
-            outline: none;
-            border-bottom-color: var(--brass); /* Focus 時變黃銅色 */
-            color: var(--brass);
-        }
+/* 裝飾性背景層 (Mountain Layer) */
+.mountain-layer {
+    background: linear-gradient(to top, var(--color-bg-paper-aged), transparent);
+    opacity: 0.5;
+}
 
-        input::placeholder {
-            color: var(--ink-disabled);
-            opacity: 0.3;
-        }
+/* ========================================= */
+/* 4. 元件樣式 (Components)                  */
+/* ========================================= */
 
-        /* 價格顯示優化 */
-        .price-value {
-            font-family: var(--font-serif);
-            font-weight: 400; /* 數字不需太粗，優雅一點 */
-            color: var(--ink-primary);
-        }
+/* --- Cards (.xuan-card) --- */
+.xuan-card {
+    background: rgba(233, 229, 218, 0.6); /* Hex #E9E5DA (paper-aged) with opacity */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+    box-shadow: 
+        0 4px 6px -1px rgba(43, 43, 43, 0.05), 
+        0 10px 15px -3px rgba(43, 43, 43, 0.05);
+    border-radius: 2px;
+    padding: 2.5rem;
+    transition: all 0.4s ease;
+}
 
-        .gold-highlight {
-            color: var(--cinnabar) !important; /* 重點項目改用硃砂紅 */
-            -webkit-text-fill-color: var(--cinnabar) !important; 
-            font-weight: 700;
-        }
+.xuan-card:focus-within {
+    background: var(--color-bg-paper-pure);
+    border-color: var(--color-accent-brass);
+    box-shadow: 0 20px 40px -10px rgba(205, 149, 117, 0.15);
+}
 
-        /* 按鈕優化 */
-        button {
-            background-color: var(--ink-primary) !important;
-            transition: all 0.3s ease;
-        }
-        
-        button:hover {
-            background-color: var(--cinnabar) !important; /* Hover 變硃砂紅 */
-            transform: translateY(-2px);
-        }
+/* --- Inputs & Forms --- */
+label {
+    font-family: var(--font-serif);
+    color: var(--color-text-secondary);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    margin-bottom: var(--space-xs);
+}
 
-        /* 裝飾性背景層 (Mountain Layer) - 調整為水墨色 */
-        .mountain-layer {
-            background: linear-gradient(to top, #E9E5DA, transparent);
-            opacity: 0.5;
-        }
-        
-        /* 側邊欄 (Settings Drawer) */
-        #settings-drawer .bg-\[\#f4f1ea\] {
-            background-color: var(--paper-aged) !important;
-            border-left: 1px solid var(--border-wash);
-        }
+input {
+    font-family: var(--font-serif);
+    color: var(--color-text-primary);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+    padding: var(--space-xs) 0;
+    font-size: var(--text-h3); /* Mapped 1.618rem to var */
+    transition: all 0.3s ease;
+}
 
-        /* Range Slider Customization */
-        input[type=range]::-webkit-slider-thumb {
-            background: var(--cinnabar); /* 拉桿頭改為硃砂紅 */
-            border: 2px solid var(--paper-default);
-        }
+input:focus {
+    outline: none;
+    border-bottom-color: var(--color-accent-brass);
+    color: var(--color-accent-brass);
+}
 
-        /* 列印模式修正 */
-        .receipt-mode body { background: #fff !important; }
-        .receipt-mode .xuan-card { border: none; box-shadow: none; background: transparent; }
-    </style>
-</head>
-<body>
+input::placeholder {
+    color: var(--color-text-disabled);
+    opacity: 0.3;
+}
 
-    <div class="ink-landscape"></div>
-    <div class="mountain-layer"></div>
+/* Range Slider Customization */
+input[type=range]::-webkit-slider-thumb {
+    background: var(--color-accent-cinnabar);
+    border: 2px solid var(--color-bg-paper);
+}
 
-    <nav class="p-8 flex justify-between items-center no-print relative z-50">
-        <div class="group cursor-pointer">
-            <h1 class="text-2xl italic tracking-tighter">Yi Xin · Gallery</h1>
-            <div class="h-0.5 w-8 bg-[var(--cinnabar)] mt-2 transition-all group-hover:w-full"></div>
-        </div>
-        <button onclick="toggleSettings(true)" class="w-10 h-10 rounded-full !bg-transparent border border-[var(--ink-wash)] flex items-center justify-center hover:!bg-[var(--paper-aged)] hover:!border-[var(--brass)] transition group">
-            <span class="text-[var(--ink-primary)] group-hover:text-[var(--brass)]">⚙️</span>
-        </button>
-    </nav>
+/* --- Buttons --- */
+/* Merging generic button (A) with .button-primary logic (B) */
+button, .button-primary {
+    background-color: var(--color-text-primary) !important; /* Default to primary ink */
+    color: #FFFFFF;
+    transition: all 0.3s ease;
+    /* Code B's padding/radius logic applied if needed, but keeping A's layout context */
+}
 
-    <aside id="settings-drawer" class="fixed inset-0 z-[100] no-print invisible opacity-0 transition-all duration-300">
-        <div class="absolute inset-0 bg-[var(--ink-primary)]/10 backdrop-blur-sm" onclick="toggleSettings(false)"></div>
-        <div class="absolute right-0 top-0 h-full w-80 bg-[#f4f1ea] p-10 shadow-2xl transform translate-x-full transition-transform duration-300 flex flex-col justify-center">
-            <h2 class="text-xs font-bold mb-10 uppercase tracking-[0.3em] text-[var(--ink-wash)]">Database</h2>
-            <div class="space-y-8">
-                <div><label>壓克力單價</label><input type="number" id="cfg-price-a"></div>
-                <div><label>PS 塑膠板</label><input type="number" id="cfg-price-b"></div>
-                <div><label>藝術卡紙</label><input type="number" id="cfg-price-c"></div>
-            </div>
-            <button onclick="saveSettings()" class="w-full !bg-[var(--ink-primary)] text-white text-xs font-bold py-4 rounded mt-12 tracking-widest hover:!bg-[var(--brass)]">SAVE CHANGE</button>
-        </div>
-    </aside>
+button:hover {
+    background-color: var(--color-accent-cinnabar) !important;
+    transform: translateY(-2px);
+}
 
-    <main id="layout-container">
+/* ========================================= */
+/* 5. 功能性模組 (Utilities / Functionality) */
+/* ========================================= */
 
-        <section class="layout-block xuan-card">
-            <div class="grid grid-cols-2 gap-8">
-                <div>
-                    <label>Length (CM)</label>
-                    <input type="number" id="length" inputmode="decimal" placeholder="0">
-                </div>
-                <div>
-                    <label>Width (CM)</label>
-                    <input type="number" id="width" inputmode="decimal" placeholder="0">
-                </div>
-                <div class="col-span-2 pt-4">
-                    <label>Frame Price ($)</label>
-                    <input type="number" id="framePrice" inputmode="decimal" placeholder="0">
-                </div>
-            </div>
-        </section>
+/* 側邊欄 (Settings Drawer) */
+#settings-drawer .bg-\[\#f4f1ea\] {
+    background-color: var(--color-bg-paper-aged) !important;
+    border-left: 1px solid var(--color-border);
+}
 
-        <section class="layout-block"> 
-            <div class="print-only text-center py-10">
-                <h1 class="text-4xl en-title mb-4">Quotation</h1>
-                <p id="receipt-date" class="text-xs tracking-[0.3em] uppercase text-gray-500"></p>
-                <div class="h-px w-10 bg-black mx-auto my-6"></div>
-                <p id="receipt-spec" class="text-xl italic font-serif"></p>
-            </div>
+/* 列印模式修正 (Print Mode) */
+.receipt-mode body { background: #fff !important; }
+.receipt-mode .xuan-card { border: none; box-shadow: none; background: transparent; }
 
-            <div class="xuan-card space-y-8">
-                <div class="flex justify-between items-center group">
-                    <div>
-                        <h3 class="text-lg">壓克力</h3>
-                        <p class="text-[10px] uppercase tracking-widest text-[var(--ink-wash)] mt-1">Grade A</p>
-                    </div>
-                    <div class="text-right">
-                        <p id="old-1-2" class="text-xs text-[var(--ink-disabled)] line-through mb-1"></p>
-                        <p id="total-1-2" class="price-value text-3xl group-hover:text-[var(--brass)] transition">$ 0</p>
-                    </div>
-                </div>
-                <div class="h-px bg-[var(--border-wash)]"></div>
-                
-                <div class="flex justify-between items-center group">
-                    <div>
-                        <h3 class="text-lg">PS 塑膠板</h3>
-                        <p class="text-[10px] uppercase tracking-widest text-[var(--ink-wash)] mt-1">Selection B</p>
-                    </div>
-                    <div class="text-right">
-                        <p id="old-1-3" class="text-xs text-[var(--ink-disabled)] line-through mb-1"></p>
-                        <p id="total-1-3" class="price-value text-3xl group-hover:text-[var(--brass)] transition">$ 0</p>
-                    </div>
-                </div>
-                <div class="h-px bg-[var(--border-wash)]"></div>
-
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="text-lg" style="color: var(--cinnabar);">藝術卡紙</h3>
-                        <p class="text-[10px] uppercase tracking-widest text-[var(--ink-wash)] mt-1">Premium C</p>
-                    </div>
-                    <div class="text-right">
-                        <p id="old-1-4" class="text-xs text-[var(--ink-disabled)] line-through mb-1"></p>
-                        <p id="total-1-4" class="price-value gold-highlight text-4xl">$ 0</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section class="layout-block xuan-card no-print">
-            <div class="flex justify-between items-center mb-6">
-                <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-[var(--ink-wash)]">Special Offer</span>
-                <div class="flex items-baseline font-bold text-xl font-serif">
-                    <input type="number" id="discountInput" value="100" class="w-16 text-right !border-0 !p-0 !text-2xl text-[var(--cinnabar)]">
-                    <span class="text-sm ml-1 text-[var(--ink-wash)]">%</span>
-                </div>
-            </div>
-            <input type="range" id="discountRange" min="30" max="100" value="100" step="5" class="w-full accent-[var(--cinnabar)]">
-        </section>
-    </main>
-
-    <div class="fixed bottom-8 left-0 w-full flex justify-center no-print z-50 pointer-events-none">
-        <button onclick="toggleReceipt()" class="pointer-events-auto !bg-[var(--ink-primary)] text-white px-10 py-4 rounded shadow-2xl flex items-center gap-3 hover:scale-105 active:scale-95 transition transform hover:!bg-[var(--cinnabar)]">
-            <span id="btn-icon">📄</span>
-            <span id="btn-text" class="text-xs font-bold tracking-[0.2em] uppercase">Export</span>
-        </button>
-    </div>
-
-    <script>
-        // ==========================================
-        //  JS Logic (保留 Code A 的邏輯核心)
-        // ==========================================
-        let config = { priceA: 150, priceB: 130, priceC: 200 };
-        
-        const load = () => {
-            const savedCfg = localStorage.getItem('g_cfg_v2'); 
-            if(savedCfg) config = JSON.parse(savedCfg);
-            ['a','b','c'].forEach(k => {
-                const el = document.getElementById(`cfg-price-${k}`);
-                if(el) el.value = config[`price${k.toUpperCase()}`];
-            });
-            ['length', 'width', 'framePrice', 'discountRange'].forEach(id => {
-                const v = localStorage.getItem(`g_val_v2_${id}`); 
-                if(v) document.getElementById(id).value = v;
-            });
-            calculate();
-        };
-
-        const saveSettings = () => {
-            ['A','B','C'].forEach(k => {
-                config[`price${k}`] = parseFloat(document.getElementById(`cfg-price-${k.toLowerCase()}`).value) || 0;
-            });
-            localStorage.setItem('g_cfg_v2', JSON.stringify(config));
-            toggleSettings(false);
-            calculate();
-        };
-
-        const calculate = () => {
-            const L = parseFloat(document.getElementById('length').value) || 0;
-            const W = parseFloat(document.getElementById('width').value) || 0;
-            const P = parseFloat(document.getElementById('framePrice').value) || 0;
-            const D = parseFloat(document.getElementById('discountRange').value) || 100;
-            
-            document.getElementById('discountInput').value = D;
-            
-            localStorage.setItem('g_val_v2_length', L);
-            localStorage.setItem('g_val_v2_width', W);
-            localStorage.setItem('g_val_v2_framePrice', P);
-            localStorage.setItem('g_val_v2_discountRange', D);
-
-            if (L <= 0 || W <= 0) return;
-
-            const frameTotal = (L + W) * 2 * P;
-            const area = L * W;
-            const plans = [
-                frameTotal + (area * config.priceA),
-                frameTotal + (area * config.priceB),
-                frameTotal + (area * config.priceC)
-            ];
-
-            const fmt = (v) => `$ ${Math.round(v).toLocaleString()}`;
-            
-            [['total-1-2','old-1-2'],['total-1-3','old-1-3'],['total-1-4','old-1-4']].forEach((ids, i) => {
-                const totalEl = document.getElementById(ids[0]);
-                const oldEl = document.getElementById(ids[1]);
-                const discountedPrice = plans[i] * (D/100);
-                totalEl.innerText = fmt(discountedPrice);
-                oldEl.innerText = D < 100 ? fmt(plans[i]) : "";
-            });
-
-            document.getElementById('receipt-spec').innerText = `${L} × ${W} CM / Frame: $${P}`;
-        };
-
-        function toggleSettings(open) {
-            const drawer = document.getElementById('settings-drawer');
-            const drawerContent = drawer.querySelector('div:last-child');
-            if(open) {
-                drawer.classList.remove('invisible', 'opacity-0');
-                drawerContent.classList.remove('translate-x-full');
-            } else {
-                drawer.classList.add('opacity-0');
-                drawerContent.classList.add('translate-x-full');
-                setTimeout(() => drawer.classList.add('invisible'), 300);
-            }
-        }
-
-        function toggleReceipt() {
-            const isR = document.body.classList.toggle('receipt-mode');
-            document.getElementById('btn-text').innerText = isR ? "Edit Data" : "Export";
-            document.getElementById('btn-icon').innerText = isR ? "↩" : "📄";
-            if(isR) {
-                document.getElementById('receipt-date').innerText = new Date().toLocaleDateString('zh-TW', {year:'numeric',month:'long',day:'numeric'});
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        ['length','width','framePrice','discountRange'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculate);
-        });
-
-        window.onload = load;
-    </script>
-</body>
-</html>
+/* Tailwind Helpers Overrides (If needed for JS interaction) */
+.bg-\[var\(--cinnabar\)\] { background-color: var(--color-accent-cinnabar); }
+.text-\[var\(--ink-primary\)\] { color: var(--color-text-primary); }
