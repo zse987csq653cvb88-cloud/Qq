@@ -3,372 +3,415 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>極致山水 · 數位藝廊系統</title>
-    <meta name="theme-color" content="#F6EDE1">
-
+    <title>極致山水 · 人文極簡版</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;700;900&family=Noto+Sans+JP:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            /* --- 文房色彩系統 (Bunpou) --- */
-            --bg-paper: #F6EDE1;       /* 鳥の子色：主背景 */
-            --bg-paper-aged: #E9E5DA;  /* 陳年和紙：深色背景 */
-            --text-ink: #2B2B2B;       /* 濃墨：主文字 */
-            --text-wash: #554B3F;      /* 淡墨：次要文字 */
-            --accent-seal: #E34234;    /* 硃砂：強調色 */
-            --accent-gold: #CD9575;    /* 金繼：焦點色 */
-            
-            /* --- 物理參數 --- */
-            --spring-heavy: cubic-bezier(0.175, 0.885, 0.32, 1.1); /* 減少回彈，增加重量感 */
+            --bg: #F2F2F2; /* 淺灰背景 */
+            --ticket-bg: #FFFFFF;
+            --ink: #111111; /* 接近純黑 */
+            --placeholder: #E0E0E0;
+            --line: #E5E5E5;
         }
 
-        /* 全局字體設定 */
         body {
-            font-family: 'Zen Old Mincho', 'Noto Serif TC', serif; /* 明朝體 */
-            background-color: var(--bg-paper-aged); /* 外圍深色，凸顯卡片 */
-            color: var(--text-ink);
+            background-color: var(--bg);
+            color: var(--ink);
+            font-family: 'Inter', sans-serif; /* UI 文字保持無襯線，清晰易讀 */
             -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            touch-action: manipulation;
         }
 
-        /* 噪點紋理：模擬宣紙纖維 */
-        .washi-texture {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 50;
-            pointer-events: none;
-            opacity: 0.04;
-            mix-blend-mode: multiply;
-            background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        /* ✨ 核心修改：數字改用襯線體 (Serif) */
+        .font-serif-num { 
+            font-family: 'Noto Serif TC', serif; 
+            letter-spacing: 0.02em; 
         }
 
-        /* 水墨山水背景：更抽象、更流動 */
-        .ink-mountain {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 45vh;
-            background: linear-gradient(to top, #dcd5ca, transparent);
-            mask-image: linear-gradient(to top, black 40%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to top, black 40%, transparent 100%);
-            z-index: -1;
-            filter: blur(60px); /* 極度模糊，形成暈染感 */
-            opacity: 0.8;
-        }
-
-        /* 實體紙張卡片 (Paper Card) */
-        /* 替換原本的毛玻璃，改為實體質感 */
-        .paper-card {
-            background-color: var(--bg-paper);
-            border-radius: 4px; /* 傳統紙張沒有大圓角 */
-            /* 多層次漫射陰影，模擬柔光 */
-            box-shadow: 
-                0 2px 4px rgba(43, 43, 43, 0.05),
-                0 12px 24px rgba(43, 43, 43, 0.05),
-                0 24px 48px rgba(85, 75, 63, 0.08); 
-            transition: transform 0.5s var(--spring-heavy), box-shadow 0.5s ease;
+        /* 輸入區樣式 */
+        .input-group {
+            margin-bottom: 3rem;
             position: relative;
-            overflow: hidden; /* 讓內部裝飾不溢出 */
         }
         
-        /* 聚焦時的懸浮感：像紙被輕輕提起 */
-        .paper-card:focus-within {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 4px 8px rgba(43, 43, 43, 0.05),
-                0 20px 32px rgba(43, 43, 43, 0.08),
-                0 32px 64px rgba(85, 75, 63, 0.12);
-        }
-
-        /* 裝飾性：角落的摺痕或紋路 */
-        .paper-card::before {
-            content: '';
-            position: absolute; top: 0; left: 0; width: 100%; height: 4px;
-            background: rgba(85, 75, 63, 0.1); /* 頂部微陰影 */
-        }
-
-        /* 輸入框美化：金繼風格 (Kintsugi Input) */
-        input {
-            background: transparent !important;
-            border-bottom: 1px solid rgba(85, 75, 63, 0.2) !important; /* 淡墨線條 */
-            border-radius: 0 !important;
-            font-family: 'Noto Sans JP', sans-serif; /* 數字與輸入用無襯線體 */
+        .raw-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--line);
+            font-family: 'Noto Serif TC', serif; /* 輸入數字也改為襯線 */
+            font-size: 2.5rem; 
             font-weight: 500;
-            color: var(--text-ink);
-            transition: all 0.4s ease;
+            color: var(--ink);
+            padding: 0.5rem 0;
+            border-radius: 0;
+            transition: border-color 0.4s ease;
         }
-
-        input:focus {
-            outline: none;
-            border-bottom-color: var(--accent-gold) !important; /* 聚焦時變為金銅色 */
-            box-shadow: 0 4px 12px -4px rgba(205, 149, 117, 0.2); /* 金色光暈 */
-        }
-
-        label {
-            font-family: 'Noto Sans JP', sans-serif;
-            color: var(--text-wash);
-            letter-spacing: 0.15em;
-        }
-
-        /* 數值變化動畫 */
-        .price-value {
-            font-variant-numeric: tabular-nums;
-            font-feature-settings: "tnum";
-            transition: color 0.2s;
-        }
-
-        /* 硃砂印按鈕 (Cinnabar Seal Button) */
-        .btn-seal {
-            background-color: var(--accent-seal);
-            color: white;
-            border-radius: 4px; /* 印章通常是方形或微圓角 */
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(227, 66, 52, 0.25);
-            transition: all 0.3s var(--spring-heavy);
-        }
-
-        .btn-seal::after {
-            content: '';
-            position: absolute; inset: 0;
-            background: radial-gradient(circle, transparent 30%, rgba(0,0,0,0.1) 100%); /* 印泥的質感 */
-        }
-
-        .btn-seal:active {
-            transform: scale(0.96);
-            box-shadow: 0 2px 10px rgba(227, 66, 52, 0.2);
-        }
-
-        /* 模式切換邏輯 */
-        .receipt-mode .no-print { display: none !important; }
-        .receipt-mode .print-only { display: block !important; }
-        .receipt-mode { background: #fff !important; }
-        .print-only { display: none; }
         
-        .receipt-mode main { padding-bottom: 0 !important; max-width: 600px; }
+        .raw-input:focus {
+            outline: none;
+            border-bottom-color: var(--ink);
+        }
+
+        .raw-input::placeholder {
+            color: var(--placeholder);
+            font-weight: 300;
+        }
+
+        .label-tiny {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            color: #888;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+        }
+
+        /* 右側單據樣式 */
+        .ticket {
+            background: var(--ticket-bg);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.06);
+            padding: 3.5rem; /* 增加留白 */
+            position: relative;
+            min-height: 640px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        /* 幽靈數據樣式 */
+        .data-value {
+            font-family: 'Noto Serif TC', serif; /* 顯示數字改為襯線 */
+            transition: color 0.3s;
+        }
+        .data-value.empty {
+            color: var(--placeholder);
+            font-weight: 300;
+        }
+        .data-value.filled {
+            color: var(--ink);
+            font-weight: 700;
+        }
+
+        /* 價格行 */
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--line);
+        }
+        .price-row:last-child { border-bottom: none; }
+
+        /* Dialog */
+        dialog { 
+            border: none;
+            padding: 0; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 4px;
+        }
+        dialog::backdrop { background: rgba(255,255,255, 0.8); }
+        
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="flex flex-col lg:flex-row min-h-screen items-center justify-center p-6 lg:p-0">
 
-    <div class="washi-texture"></div>
-    
-    <div class="ink-mountain"></div>
-
-    <nav class="p-8 flex justify-between items-center no-print relative z-10">
-        <div class="group cursor-pointer">
-            <h1 class="text-2xl font-black tracking-[0.2em] text-[#2B2B2B]" style="writing-mode: horizontal-tb;">
-                山水<span class="text-[#CD9575] mx-2">·</span>藝廊
-            </h1>
-            <p class="text-[9px] text-[#554B3F] tracking-[0.4em] uppercase mt-1 opacity-60">Minimalist Gallery</p>
-        </div>
-        <button onclick="toggleSettings(true)" aria-label="系統設定" class="w-12 h-12 rounded-full flex items-center justify-center hover:bg-[#2B2B2B] hover:text-[#F6EDE1] transition-colors duration-500 text-[#2B2B2B]">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="3"></circle>
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>
-        </button>
-    </nav>
-
-    <aside id="settings-drawer" class="fixed inset-0 z-[100] no-print flex justify-end invisible opacity-0 transition-all duration-500">
-        <div class="absolute inset-0 bg-[#2B2B2B]/20 backdrop-blur-sm" onclick="toggleSettings(false)"></div>
-        <div class="relative w-full max-w-sm bg-[#F6EDE1] h-full p-10 shadow-2xl transform translate-x-full transition-transform duration-500 overflow-y-auto border-l border-[#E9E5DA]">
-            <h2 class="text-xl font-bold mb-10 flex items-center tracking-widest text-[#2B2B2B]">
-                <span class="w-8 h-[2px] bg-[#CD9575] mr-4"></span> 參數設定
-            </h2>
-            <div class="space-y-8">
-                <div class="group">
-                    <label class="text-[10px] uppercase block group-focus-within:text-[#CD9575] transition-colors">壓克力基價</label>
-                    <input type="number" id="cfg-price-a" class="w-full py-2 text-lg">
-                </div>
-                <div class="group">
-                    <label class="text-[10px] uppercase block group-focus-within:text-[#CD9575] transition-colors">塑膠板基價</label>
-                    <input type="number" id="cfg-price-b" class="w-full py-2 text-lg">
-                </div>
-                <div class="group">
-                    <label class="text-[10px] uppercase block group-focus-within:text-[#CD9575] transition-colors">藝術卡紙基價</label>
-                    <input type="number" id="cfg-price-c" class="w-full py-2 text-lg">
-                </div>
-            </div>
-            <button onclick="saveSettings()" class="w-full bg-[#2B2B2B] text-[#F6EDE1] font-medium py-5 mt-16 shadow-lg hover:bg-black transition-all tracking-[0.2em]">
-                確認變更
-            </button>
-        </div>
-    </aside>
-
-    <main class="max-w-lg mx-auto p-6 pb-40 relative z-10">
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-32">
         
-        <section class="paper-card p-10 mb-8 no-print">
-            <div class="grid grid-cols-2 gap-x-8 gap-y-10">
-                <div>
-                    <label class="text-[10px] uppercase mb-2 block">長度 (CM)</label>
-                    <input type="number" id="length" inputmode="decimal" class="w-full text-2xl py-1">
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase mb-2 block">寬度 (CM)</label>
-                    <input type="number" id="width" inputmode="decimal" class="w-full text-2xl py-1">
-                </div>
-                <div class="col-span-2">
-                    <label class="text-[10px] uppercase mb-2 block">框條單價 ($)</label>
-                    <input type="number" id="framePrice" inputmode="decimal" class="w-full text-2xl py-1 text-[#CD9575]">
-                </div>
-            </div>
-        </section>
+        <!-- 左側：輸入 (Input) -->
+        <div class="flex flex-col justify-center animate-fade-in pl-4 lg:pl-12">
+            <header class="mb-16">
+                <h1 class="text-5xl font-bold leading-tight tracking-tight mb-2 font-serif-num">
+                    極致山水
+                </h1>
+                <p class="text-gray-400 font-light tracking-widest text-sm">數位報價系統</p>
+            </header>
 
-        <div class="space-y-6 px-4">
-            <div class="print-only text-center py-10">
-                <h1 class="text-3xl font-bold mb-4 tracking-[0.2em]">報價單</h1>
-                <p id="receipt-date" class="text-[#554B3F] text-[10px] tracking-widest uppercase"></p>
-                <div class="h-[1px] w-12 bg-[#CD9575] mx-auto my-6"></div>
-                <p id="receipt-spec" class="text-lg font-serif italic mb-10"></p>
-            </div>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-12">
+                    <div class="input-group">
+                        <label class="label-tiny">長度 (CM)</label>
+                        <input type="number" id="length" class="raw-input" placeholder="00">
+                    </div>
+                    <div class="input-group">
+                        <label class="label-tiny">寬度 (CM)</label>
+                        <input type="number" id="width" class="raw-input" placeholder="00">
+                    </div>
+                </div>
 
-            <div class="flex justify-between items-end border-b border-[#E9E5DA] pb-5 group cursor-default">
-                <div>
-                    <h3 class="font-bold text-lg text-[#2B2B2B] group-hover:translate-x-1 transition-transform duration-500">壓克力</h3>
-                    <p class="text-[9px] text-[#554B3F] uppercase tracking-[0.2em] mt-1 opacity-70">Plan A</p>
+                <div class="input-group">
+                    <label class="label-tiny">框條單價 ($)</label>
+                    <input type="number" id="framePrice" class="raw-input" placeholder="0.0">
                 </div>
-                <div class="text-right">
-                    <p id="old-1-2" class="text-[10px] text-[#CD9575] line-through mb-1 opacity-60"></p>
-                    <p id="total-1-2" class="price-value text-2xl font-medium leading-none tracking-tight">$ 0</p>
-                </div>
-            </div>
-
-            <div class="flex justify-between items-end border-b border-[#E9E5DA] pb-5 group cursor-default">
-                <div>
-                    <h3 class="font-bold text-lg text-[#2B2B2B] group-hover:translate-x-1 transition-transform duration-500">PS 塑膠板</h3>
-                    <p class="text-[9px] text-[#554B3F] uppercase tracking-[0.2em] mt-1 opacity-70">Plan B</p>
-                </div>
-                <div class="text-right">
-                    <p id="old-1-3" class="text-[10px] text-[#CD9575] line-through mb-1 opacity-60"></p>
-                    <p id="total-1-3" class="price-value text-2xl font-medium leading-none tracking-tight">$ 0</p>
+                
+                <div class="input-group">
+                    <div class="flex justify-between mb-2">
+                        <label class="label-tiny">優惠折扣</label>
+                        <span class="font-serif-num text-lg"><span id="discountDisplay">100</span>%</span>
+                    </div>
+                    <input type="range" id="discountRange" min="50" max="100" value="100" step="5" class="w-full h-[1px] bg-gray-300 appearance-none cursor-pointer accent-black">
                 </div>
             </div>
 
-            <div class="flex justify-between items-end border-b border-[#E9E5DA] pb-5 group cursor-default">
-                <div>
-                    <h3 class="font-bold text-lg text-[#2B2B2B] group-hover:translate-x-1 transition-transform duration-500">藝術卡紙</h3>
-                    <p class="text-[9px] text-[#554B3F] uppercase tracking-[0.2em] mt-1 opacity-70">Plan C</p>
-                </div>
-                <div class="text-right">
-                    <p id="old-1-4" class="text-[10px] text-[#CD9575] line-through mb-1 opacity-60"></p>
-                    <p id="total-1-4" class="price-value text-2xl font-medium leading-none tracking-tight">$ 0</p>
-                </div>
+            <div class="mt-12 flex gap-4">
+                <button onclick="window.print()" class="bg-black text-white px-8 py-5 text-sm font-bold tracking-widest hover:bg-gray-800 transition-colors w-full flex justify-between items-center group">
+                    <span>列印單據</span>
+                    <span class="group-hover:translate-x-1 transition-transform">→</span>
+                </button>
+                <button onclick="toggleSettings()" class="border border-gray-200 px-6 py-5 hover:border-black transition-colors text-gray-400 hover:text-black">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
             </div>
         </div>
 
-        <section class="paper-card p-6 mt-12 no-print flex items-center justify-between">
-            <div class="flex flex-col">
-                <span class="text-[10px] font-bold text-[#CD9575] tracking-widest uppercase mb-1">Discount</span>
-                <div class="font-bold flex items-baseline">
-                    <input type="number" id="discountInput" value="100" class="w-12 text-2xl !p-0 !border-0 focus:!border-0 bg-transparent text-[#2B2B2B]">
-                    <span class="text-xs ml-1 font-bold text-[#554B3F]">%</span>
-                </div>
-            </div>
-            <div class="w-1/2">
-                <input type="range" id="discountRange" min="30" max="100" value="100" step="5" class="w-full h-[2px] bg-[#E9E5DA] appearance-none rounded-full accent-[#2B2B2B] cursor-pointer">
-            </div>
-        </section>
-    </main>
+        <!-- 右側：單據 (Receipt) -->
+        <div class="flex items-center justify-center">
+            <div id="receipt-container" class="ticket w-full max-w-md">
+                
+                <!-- 單據頭部 (已移除 PROJECT 標題) -->
+                <div>
+                    <div class="flex justify-end mb-10">
+                        <div class="text-right">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Date</div>
+                            <div id="receipt-date" class="font-serif-num text-sm">2026.01.15</div>
+                        </div>
+                    </div>
 
-    <div class="fixed bottom-10 left-1/2 -translate-x-1/2 w-full px-6 max-w-sm no-print z-50">
-        <button onclick="toggleReceipt()" class="btn-seal w-full py-4 flex items-center justify-center space-x-3 group">
-            <span id="btn-icon" class="text-lg opacity-80 group-hover:rotate-12 transition-transform">📄</span> 
-            <span id="btn-text" class="text-xs tracking-[0.3em] font-medium uppercase text-white">Share Quotation</span>
-        </button>
+                    <!-- 規格顯示 -->
+                    <div class="bg-gray-50 p-8 mb-12 rounded-sm border border-gray-100">
+                        <div class="grid grid-cols-2 gap-8 text-sm">
+                            <div>
+                                <div class="text-[10px] font-bold uppercase text-gray-400 mb-2">Dimensions</div>
+                                <div class="font-serif-num text-xl">
+                                    <span id="disp-l" class="data-value empty">00</span> × <span id="disp-w" class="data-value empty">00</span>
+                                    <span class="text-xs text-gray-400 ml-1 font-sans">CM</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[10px] font-bold uppercase text-gray-400 mb-2">Unit Price</div>
+                                <div class="font-serif-num text-xl">
+                                    $ <span id="disp-p" class="data-value empty">0.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 價格列表 -->
+                    <div class="space-y-4">
+                        <!-- 1 -->
+                        <div class="price-row group">
+                            <div>
+                                <div class="text-lg font-bold text-gray-900 group-hover:text-black">
+                                    <span class="font-serif-num mr-2">1.</span> 壓克力裝裱
+                                </div>
+                                <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-6">ACRYLIC GLAZING</div>
+                            </div>
+                            <div class="text-right">
+                                <div id="old-price-a" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
+                                <div class="font-serif-num text-3xl">
+                                    $ <span id="price-a" class="data-value empty">00,000</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 2 -->
+                        <div class="price-row group">
+                            <div>
+                                <div class="text-lg font-bold text-gray-900 group-hover:text-black">
+                                    <span class="font-serif-num mr-2">2.</span> PS 塑膠板
+                                </div>
+                                <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-6">POLYSTYRENE</div>
+                            </div>
+                            <div class="text-right">
+                                <div id="old-price-b" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
+                                <div class="font-serif-num text-3xl">
+                                    $ <span id="price-b" class="data-value empty">00,000</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 3 -->
+                        <div class="price-row group">
+                            <div>
+                                <div class="text-lg font-bold text-gray-900 group-hover:text-black">
+                                    <span class="font-serif-num mr-2">3.</span> 藝術卡紙
+                                </div>
+                                <div class="text-[10px] text-gray-400 font-sans tracking-wide mt-1 pl-6">MUSEUM MATBOARD</div>
+                            </div>
+                            <div class="text-right">
+                                <div id="old-price-c" class="text-[10px] text-gray-300 line-through h-4 font-serif-num"></div>
+                                <div class="font-serif-num text-3xl">
+                                    $ <span id="price-c" class="data-value empty">00,000</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部簽署區 -->
+                <div class="mt-16 flex justify-between items-end">
+                    <div class="text-[10px] text-gray-400 uppercase tracking-widest">
+                        <div>ID <span id="ticket-id" class="font-serif-num ml-1 text-gray-500">000-000</span></div>
+                    </div>
+                    <div class="w-32 border-b border-black pb-2 text-right">
+                        <span class="font-serif-num text-xs font-bold text-black">Shan Shui</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
     </div>
 
+    <!-- 設定 Modal -->
+    <dialog id="settingsDialog" class="w-full max-w-sm">
+        <div class="bg-white p-10">
+            <h3 class="text-xl font-bold mb-8 font-serif-num">基價參數設定</h3>
+            <div class="space-y-6 text-sm">
+                <div>
+                    <label class="block mb-2 text-gray-400 font-sans text-xs font-bold tracking-widest">方案 1 (壓克力)</label>
+                    <input type="number" id="cfg-price-a" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num">
+                </div>
+                <div>
+                    <label class="block mb-2 text-gray-400 font-sans text-xs font-bold tracking-widest">方案 2 (塑膠板)</label>
+                    <input type="number" id="cfg-price-b" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num">
+                </div>
+                <div>
+                    <label class="block mb-2 text-gray-400 font-sans text-xs font-bold tracking-widest">方案 3 (藝術卡紙)</label>
+                    <input type="number" id="cfg-price-c" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num">
+                </div>
+            </div>
+            <div class="mt-10 flex justify-end gap-6">
+                <button onclick="document.getElementById('settingsDialog').close()" class="text-xs font-bold text-gray-400 hover:text-black tracking-widest">取消</button>
+                <button onclick="saveConfig()" class="bg-black text-white px-8 py-3 text-xs font-bold tracking-widest hover:bg-gray-800">保存設定</button>
+            </div>
+        </div>
+    </dialog>
+
     <script>
-        // --- 邏輯保持不變，確保功能完整 ---
+        /**
+         * 🧠 LOGIC ENGINE
+         */
         let config = { priceA: 150, priceB: 130, priceC: 200 };
 
-        const load = () => {
-            const savedCfg = localStorage.getItem('g_cfg_v2'); 
+        function initLogic() {
+            const savedCfg = localStorage.getItem('g_cfg_pure');
             if(savedCfg) config = JSON.parse(savedCfg);
-            
-            ['a','b','c'].forEach(k => {
-                const el = document.getElementById(`cfg-price-${k}`);
-                if(el) el.value = config[`price${k.toUpperCase()}`];
-            });
 
             ['length', 'width', 'framePrice', 'discountRange'].forEach(id => {
-                const v = localStorage.getItem(`g_val_v2_${id}`); 
-                if(v) document.getElementById(id).value = v;
+                const val = localStorage.getItem(`g_val_pure_${id}`);
+                if(val) document.getElementById(id).value = val;
             });
-            calculate();
-        };
 
-        const saveSettings = () => {
-            ['A','B','C'].forEach(k => {
-                config[`price${k}`] = parseFloat(document.getElementById(`cfg-price-${k.toLowerCase()}`).value) || 0;
-            });
-            localStorage.setItem('g_cfg_v2', JSON.stringify(config));
-            toggleSettings(false);
-            calculate();
-        };
+            // Date
+            const d = new Date();
+            document.getElementById('receipt-date').innerText = d.toLocaleDateString('en-US', {year:'numeric', month:'2-digit', day:'2-digit'}).replace(/\//g, '.');
+            
+            // Random Ticket ID
+            document.getElementById('ticket-id').innerText = Math.floor(Math.random() * 900000 + 100000);
 
-        const calculate = () => {
+            calculate();
+        }
+
+        // Helper: 更新數值樣式
+        function updateValue(id, val, isMoney = false) {
+            const el = document.getElementById(id);
+            if (val > 0) {
+                el.innerText = isMoney ? Math.round(val).toLocaleString() : val;
+                el.classList.remove('empty');
+                el.classList.add('filled');
+            } else {
+                el.innerText = isMoney ? "00,000" : "00";
+                el.classList.add('empty');
+                el.classList.remove('filled');
+            }
+        }
+
+        function calculate() {
             const L = parseFloat(document.getElementById('length').value) || 0;
             const W = parseFloat(document.getElementById('width').value) || 0;
             const P = parseFloat(document.getElementById('framePrice').value) || 0;
             const D = parseFloat(document.getElementById('discountRange').value) || 100;
+
+            localStorage.setItem('g_val_pure_length', L);
+            localStorage.setItem('g_val_pure_width', W);
+            localStorage.setItem('g_val_pure_framePrice', P);
+            localStorage.setItem('g_val_pure_discountRange', D);
+
+            document.getElementById('discountDisplay').innerText = D;
             
-            document.getElementById('discountInput').value = D;
+            // 更新 Phantom Data
+            updateValue('disp-l', L);
+            updateValue('disp-w', W);
+            updateValue('disp-p', P, true);
 
-            localStorage.setItem('g_val_v2_length', L);
-            localStorage.setItem('g_val_v2_width', W);
-            localStorage.setItem('g_val_v2_framePrice', P);
-            localStorage.setItem('g_val_v2_discountRange', D);
-
-            if (L <= 0 || W <= 0) return;
-
-            const frameTotal = (L + W) * 2 * P;
-            const area = L * W;
-            const plans = [
-                frameTotal + (area * config.priceA),
-                frameTotal + (area * config.priceB),
-                frameTotal + (area * config.priceC)
-            ];
-
-            const fmt = (v) => `$ ${Math.round(v).toLocaleString()}`;
-            
-            [['total-1-2','old-1-2'],['total-1-3','old-1-3'],['total-1-4','old-1-4']].forEach((ids, i) => {
-                const totalEl = document.getElementById(ids[0]);
-                const oldEl = document.getElementById(ids[1]);
+            if (L > 0 && W > 0) {
+                const frameTotal = (L + W) * 2 * P; 
+                const area = L * W; 
                 
-                const discountedPrice = plans[i] * (D/100);
-                
-                totalEl.innerText = fmt(discountedPrice);
-                oldEl.innerText = D < 100 ? fmt(plans[i]) : "";
-            });
+                const prices = [
+                    frameTotal + (area * config.priceA),
+                    frameTotal + (area * config.priceB),
+                    frameTotal + (area * config.priceC)
+                ];
 
-            document.getElementById('receipt-spec').innerText = `${L} × ${W} CM / $${P}`;
-        };
+                const fmt = n => `$ ${Math.round(n).toLocaleString()}`;
 
-        function toggleSettings(open) {
-            const drawer = document.getElementById('settings-drawer');
-            const drawerContent = drawer.querySelector('div:last-child');
-            if(open) {
-                drawer.classList.remove('invisible', 'opacity-0');
-                drawerContent.classList.remove('translate-x-full');
+                [['price-a','old-price-a'], ['price-b','old-price-b'], ['price-c','old-price-c']].forEach((ids, i) => {
+                    const finalPrice = prices[i] * (D/100);
+                    // Update final price
+                    updateValue(ids[0], finalPrice, true);
+                    
+                    // Update old price
+                    const oldEl = document.getElementById(ids[1]);
+                    oldEl.innerText = D < 100 ? fmt(prices[i]) : "";
+                });
             } else {
-                drawer.classList.add('opacity-0');
-                drawerContent.classList.add('translate-x-full');
-                setTimeout(() => drawer.classList.add('invisible'), 500);
+                // Reset prices if input invalid
+                updateValue('price-a', 0, true);
+                updateValue('price-b', 0, true);
+                updateValue('price-c', 0, true);
+                document.getElementById('old-price-a').innerText = "";
+                document.getElementById('old-price-b').innerText = "";
+                document.getElementById('old-price-c').innerText = "";
             }
         }
 
-        function toggleReceipt() {
-            const isR = document.body.classList.toggle('receipt-mode');
-            document.getElementById('btn-text').innerText = isR ? "Edit Data" : "Share Quotation";
-            document.getElementById('btn-icon').innerText = isR ? "↩" : "📄";
-            if(isR) {
-                document.getElementById('receipt-date').innerText = new Date().toLocaleDateString('zh-TW', {year:'numeric',month:'long',day:'numeric'});
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+        function toggleSettings() {
+            const d = document.getElementById('settingsDialog');
+            if(d.open) d.close(); else {
+                ['a','b','c'].forEach(k => {
+                    document.getElementById(`cfg-price-${k}`).value = config[`price${k.toUpperCase()}`];
+                });
+                d.showModal();
             }
+        }
+
+        function saveConfig() {
+            ['A','B','C'].forEach(k => {
+                const val = parseFloat(document.getElementById(`cfg-price-${k.toLowerCase()}`).value);
+                if(!isNaN(val)) config[`price${k}`] = val;
+            });
+            localStorage.setItem('g_cfg_pure', JSON.stringify(config));
+            document.getElementById('settingsDialog').close();
+            calculate(); 
         }
 
         ['length','width','framePrice','discountRange'].forEach(id => {
             document.getElementById(id).addEventListener('input', calculate);
         });
 
-        window.onload = load;
+        window.addEventListener('DOMContentLoaded', () => {
+            // Fade in effect
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                document.body.style.transition = 'opacity 1s ease';
+                document.body.style.opacity = '1';
+            }, 100);
+            initLogic();
+        });
     </script>
 </body>
 </html>
