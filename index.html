@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>極致山水 · 響應式通用版</title>
+    <title>極致山水 · 最終完美版</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -17,14 +17,16 @@
             --line: #E5E5E5;
         }
 
+        /* ✨ FIX: 初始透明度設為 0，防止載入時閃爍 */
         body {
             background-color: var(--bg);
             color: var(--ink);
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
-            /* 防止手機橫向滾動 */
             overflow-x: hidden;
-            padding-bottom: 80px; /* 預留底部懸浮條空間 */
+            padding-bottom: 80px;
+            opacity: 0; 
+            transition: opacity 0.8s ease-out;
         }
 
         @media (min-width: 1024px) {
@@ -36,9 +38,10 @@
             letter-spacing: 0.02em; 
         }
 
-        /* 輸入區樣式 */
+        /* --- Components --- */
+
         .input-group {
-            margin-bottom: 2.5rem; /* 手機版間距稍減 */
+            margin-bottom: 2.5rem;
             position: relative;
         }
         @media (min-width: 1024px) {
@@ -51,7 +54,7 @@
             border: none;
             border-bottom: 1px solid var(--line);
             font-family: 'Noto Serif TC', serif;
-            font-size: 2rem; /* 手機版字體適中 */
+            font-size: 2rem;
             font-weight: 500;
             color: var(--ink);
             padding: 0.5rem 0;
@@ -83,11 +86,28 @@
             text-transform: uppercase;
         }
 
-        /* 右側單據樣式 */
+        .quick-price-box {
+            background-color: #111;
+            color: #fff;
+            padding: 1.25rem 1.5rem;
+            border-radius: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 2.5rem;
+            border-left: 4px solid #fff;
+        }
+        .quick-price-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
         .ticket {
             background: var(--ticket-bg);
             box-shadow: 0 20px 40px rgba(0,0,0,0.06);
-            padding: 2rem; /* 手機版內距 */
+            padding: 2rem;
             position: relative;
             min-height: auto;
             display: flex;
@@ -124,7 +144,6 @@
         }
         .price-row:last-child { border-bottom: none; }
 
-        /* 手機底部懸浮條 (Sticky Footer) */
         .sticky-footer {
             position: fixed;
             bottom: 0; left: 0; right: 0;
@@ -137,17 +156,16 @@
             align-items: center;
             z-index: 100;
             box-shadow: 0 -10px 20px rgba(0,0,0,0.02);
-            transform: translateY(100%); /* 初始隱藏 */
+            transform: translateY(100%);
             transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .sticky-footer.visible {
             transform: translateY(0);
         }
         @media (min-width: 1024px) {
-            .sticky-footer { display: none; } /* 電腦版隱藏 */
+            .sticky-footer { display: none; }
         }
 
-        /* Dialog */
         dialog { 
             border: none;
             padding: 0; 
@@ -159,45 +177,50 @@
         dialog::backdrop { background: rgba(255,255,255, 0.8); }
         
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        
-        /* 動畫 */
-        .animate-fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <!-- 整體容器：手機版上下排列 (Block)，電腦版左右排列 (Flex) -->
     <div class="max-w-6xl w-full mx-auto lg:flex lg:items-center lg:justify-center lg:min-h-screen p-6 lg:p-0">
         
-        <!-- Grid 佈局：手機 1 欄，電腦 2 欄 -->
         <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-32">
             
-            <!-- 區塊 1：輸入 (Input) -->
-            <!-- 手機版：位於上方 -->
-            <div class="flex flex-col justify-center animate-fade-in lg:pl-12 order-1">
+            <!-- Left: Input -->
+            <div class="flex flex-col justify-center lg:pl-12 order-1">
                 <header class="mb-10 lg:mb-16 mt-4 lg:mt-0">
                     <h1 class="text-4xl lg:text-5xl font-bold leading-tight tracking-tight mb-2 font-serif-num text-black">
                         極致山水
                     </h1>
-                    <p class="text-gray-400 font-light tracking-widest text-xs lg:text-sm">數位報價系統 MOBILE</p>
+                    <p class="text-gray-400 font-light tracking-widest text-xs lg:text-sm">數位報價系統 PRO</p>
                 </header>
 
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-8 lg:gap-12">
                         <div class="input-group">
                             <label class="label-tiny">長度 (CM)</label>
-                            <input type="number" id="length" class="raw-input" placeholder="00" inputmode="decimal">
+                            <!-- ✨ FIX: 加入 step="0.1" 允許小數點輸入 -->
+                            <input type="number" id="length" class="raw-input" placeholder="00" inputmode="decimal" step="0.1">
                         </div>
                         <div class="input-group">
                             <label class="label-tiny">寬度 (CM)</label>
-                            <input type="number" id="width" class="raw-input" placeholder="00" inputmode="decimal">
+                            <input type="number" id="width" class="raw-input" placeholder="00" inputmode="decimal" step="0.1">
                         </div>
                     </div>
 
                     <div class="input-group">
                         <label class="label-tiny">框條單價 ($)</label>
-                        <input type="number" id="framePrice" class="raw-input" placeholder="0.0" inputmode="decimal">
+                        <input type="number" id="framePrice" class="raw-input" placeholder="0.0" inputmode="decimal" step="0.1">
+                    </div>
+
+                    <!-- Quick Price Box (Frame Only) -->
+                    <div class="quick-price-box">
+                        <div>
+                            <span class="text-[10px] font-bold tracking-widest text-gray-400 block mb-1">FRAME ONLY</span>
+                            <span class="text-xs text-gray-500 font-sans">純框價格 (不含背板)</span>
+                        </div>
+                        <div class="font-serif-num text-3xl tracking-tight">
+                            $ <span id="quick-price-display">0</span>
+                        </div>
                     </div>
                     
                     <div class="input-group">
@@ -205,41 +228,35 @@
                             <label class="label-tiny">優惠折扣</label>
                             <span class="font-serif-num text-lg"><span id="discountDisplay">100</span>%</span>
                         </div>
-                        <!-- 加大滑桿觸控區 -->
                         <div class="py-2">
                             <input type="range" id="discountRange" min="50" max="100" value="100" step="5" class="w-full h-[1px] bg-gray-300 appearance-none cursor-pointer accent-black">
                         </div>
                     </div>
                 </div>
 
-                <!-- 電腦版按鈕 (手機版隱藏，改用底部懸浮) -->
-                <!-- 但根據需求，保留一個全寬按鈕在輸入區下方也是好的 UX -->
                 <div class="mt-8 lg:mt-12 flex gap-4">
                     <button onclick="window.print()" class="bg-black text-white px-8 py-4 lg:py-5 text-sm font-bold tracking-widest hover:bg-gray-800 transition-colors w-full flex justify-between items-center group rounded-sm shadow-lg active:scale-[0.98] transition-transform">
                         <span>列印單據</span>
                         <span class="group-hover:translate-x-1 transition-transform">→</span>
                     </button>
-                    <button onclick="toggleSettings()" class="border border-gray-200 px-5 lg:px-6 py-4 lg:py-5 hover:border-black transition-colors text-gray-400 hover:text-black rounded-sm">
+                    <button onclick="APP.toggleSettings()" class="border border-gray-200 px-5 lg:px-6 py-4 lg:py-5 hover:border-black transition-colors text-gray-400 hover:text-black rounded-sm">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                     </button>
                 </div>
             </div>
 
-            <!-- 區塊 2：單據 (Receipt) -->
-            <!-- 手機版：位於下方 (Order 2) -->
+            <!-- Right: Receipt -->
             <div class="flex items-center justify-center order-2 mb-10 lg:mb-0">
                 <div id="receipt-container" class="ticket w-full max-w-md mx-auto">
                     
-                    <!-- 單據頭部 -->
                     <div>
                         <div class="flex justify-end mb-8 lg:mb-10">
                             <div class="text-right">
                                 <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Date</div>
-                                <div id="receipt-date" class="font-serif-num text-sm">2026.01.15</div>
+                                <div id="receipt-date" class="font-serif-num text-sm"></div>
                             </div>
                         </div>
 
-                        <!-- 規格顯示 -->
                         <div class="bg-gray-50 p-6 lg:p-8 mb-8 lg:mb-12 rounded-sm border border-gray-100">
                             <div class="grid grid-cols-2 gap-6 lg:gap-8 text-sm">
                                 <div>
@@ -258,7 +275,6 @@
                             </div>
                         </div>
 
-                        <!-- 價格列表 -->
                         <div class="space-y-4">
                             <!-- 1 -->
                             <div class="price-row group">
@@ -308,7 +324,6 @@
                         </div>
                     </div>
 
-                    <!-- 底部簽署區 -->
                     <div class="mt-12 lg:mt-16 flex justify-between items-end">
                         <div class="text-[10px] text-gray-400 uppercase tracking-widest">
                             <div>ID <span id="ticket-id" class="font-serif-num ml-1 text-gray-500">000-000</span></div>
@@ -323,177 +338,181 @@
         </div>
     </div>
 
-    <!-- ✨ MOBILE STICKY FOOTER (手機底部懸浮條) -->
+    <!-- Mobile Sticky Footer -->
     <div id="mobile-sticky-footer" class="sticky-footer">
         <div class="flex flex-col">
-            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-sans font-bold">方案 1 預估</span>
+            <span class="text-[9px] text-gray-400 uppercase tracking-widest font-sans font-bold">純框價格</span>
             <span class="font-serif-num text-xl font-bold text-black leading-none mt-1">$ <span id="sticky-price">0</span></span>
         </div>
         <button onclick="document.getElementById('receipt-container').scrollIntoView({behavior: 'smooth'})" class="bg-black text-white px-5 py-2 text-xs font-bold tracking-widest rounded-sm active:scale-95 transition-transform">
-            查看詳情
+            查看總表
         </button>
     </div>
 
-    <!-- 設定 Modal -->
+    <!-- Settings Modal -->
     <dialog id="settingsDialog">
         <div class="bg-white p-8">
             <h3 class="text-xl font-bold mb-8 font-serif-num">基價參數設定</h3>
             <div class="space-y-6 text-sm">
                 <div>
                     <label class="block mb-2 text-gray-400 font-sans text-xs font-bold tracking-widest">方案 1 (壓克力)</label>
-                    <input type="number" id="cfg-price-a" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num">
+                    <input type="number" id="cfg-price-a" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num" step="0.1">
                 </div>
                 <div>
                     <label class="block mb-2 text-gray-400 font-sans text-xs font-bold tracking-widest">方案 2 (塑膠板)</label>
-                    <input type="number" id="cfg-price-b" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num">
+                    <input type="number" id="cfg-price-b" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num" step="0.1">
                 </div>
                 <div>
                     <label class="block mb-2 text-gray-400 font-sans text-xs font-bold tracking-widest">方案 3 (藝術卡紙)</label>
-                    <input type="number" id="cfg-price-c" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num">
+                    <input type="number" id="cfg-price-c" class="w-full border-b border-gray-200 py-2 focus:outline-none focus:border-black transition-colors text-lg font-serif-num" step="0.1">
                 </div>
             </div>
             <div class="mt-10 flex justify-end gap-6">
                 <button onclick="document.getElementById('settingsDialog').close()" class="text-xs font-bold text-gray-400 hover:text-black tracking-widest py-2">取消</button>
-                <button onclick="saveConfig()" class="bg-black text-white px-8 py-3 text-xs font-bold tracking-widest hover:bg-gray-800 rounded-sm">保存設定</button>
+                <button onclick="APP.saveConfig()" class="bg-black text-white px-8 py-3 text-xs font-bold tracking-widest hover:bg-gray-800 rounded-sm">保存設定</button>
             </div>
         </div>
     </dialog>
 
     <script>
-        /**
-         * 🧠 LOGIC ENGINE
-         */
-        let config = { priceA: 150, priceB: 130, priceC: 200 };
+        const APP = (() => {
+            const elements = {
+                length: document.getElementById('length'),
+                width: document.getElementById('width'),
+                framePrice: document.getElementById('framePrice'),
+                discount: document.getElementById('discountRange'),
+                discountDisplay: document.getElementById('discountDisplay'),
+                dispL: document.getElementById('disp-l'),
+                dispW: document.getElementById('disp-w'),
+                dispP: document.getElementById('disp-p'),
+                quickPrice: document.getElementById('quick-price-display'),
+                stickyPrice: document.getElementById('sticky-price'),
+                stickyFooter: document.getElementById('mobile-sticky-footer'),
+                priceA: document.getElementById('price-a'),
+                priceB: document.getElementById('price-b'),
+                priceC: document.getElementById('price-c'),
+                oldPriceA: document.getElementById('old-price-a'),
+                oldPriceB: document.getElementById('old-price-b'),
+                oldPriceC: document.getElementById('old-price-c'),
+                cfgA: document.getElementById('cfg-price-a'),
+                cfgB: document.getElementById('cfg-price-b'),
+                cfgC: document.getElementById('cfg-price-c'),
+                dialog: document.getElementById('settingsDialog'),
+                date: document.getElementById('receipt-date'),
+                ticketId: document.getElementById('ticket-id')
+            };
 
-        function initLogic() {
-            const savedCfg = localStorage.getItem('g_cfg_pure');
-            if(savedCfg) config = JSON.parse(savedCfg);
+            let config = { priceA: 150, priceB: 130, priceC: 200 };
+            const formatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
 
-            ['length', 'width', 'framePrice', 'discountRange'].forEach(id => {
-                const val = localStorage.getItem(`g_val_pure_${id}`);
-                if(val) document.getElementById(id).value = val;
-            });
+            const updateText = (el, value, isMoney = false) => {
+                if (value > 0) {
+                    el.textContent = isMoney ? formatter.format(value) : value;
+                    el.classList.replace('empty', 'filled');
+                } else {
+                    el.textContent = isMoney ? "00,000" : "00";
+                    el.classList.replace('filled', 'empty');
+                }
+            };
 
-            // Date
-            const d = new Date();
-            document.getElementById('receipt-date').innerText = d.toLocaleDateString('en-US', {year:'numeric', month:'2-digit', day:'2-digit'}).replace(/\//g, '.');
-            
-            // Random Ticket ID
-            document.getElementById('ticket-id').innerText = Math.floor(Math.random() * 900000 + 100000);
+            const calculate = () => {
+                const L = parseFloat(elements.length.value) || 0;
+                const W = parseFloat(elements.width.value) || 0;
+                const P = parseFloat(elements.framePrice.value) || 0;
+                const D = parseFloat(elements.discount.value) || 100;
 
-            calculate();
-        }
-
-        // Helper: 更新數值樣式
-        function updateValue(id, val, isMoney = false) {
-            const el = document.getElementById(id);
-            if (val > 0) {
-                el.innerText = isMoney ? Math.round(val).toLocaleString() : val;
-                el.classList.remove('empty');
-                el.classList.add('filled');
-            } else {
-                el.innerText = isMoney ? "00,000" : "00";
-                el.classList.add('empty');
-                el.classList.remove('filled');
-            }
-        }
-
-        function calculate() {
-            const L = parseFloat(document.getElementById('length').value) || 0;
-            const W = parseFloat(document.getElementById('width').value) || 0;
-            const P = parseFloat(document.getElementById('framePrice').value) || 0;
-            const D = parseFloat(document.getElementById('discountRange').value) || 100;
-
-            localStorage.setItem('g_val_pure_length', L);
-            localStorage.setItem('g_val_pure_width', W);
-            localStorage.setItem('g_val_pure_framePrice', P);
-            localStorage.setItem('g_val_pure_discountRange', D);
-
-            document.getElementById('discountDisplay').innerText = D;
-            
-            // 更新 Phantom Data
-            updateValue('disp-l', L);
-            updateValue('disp-w', W);
-            updateValue('disp-p', P, true);
-
-            // 控制手機底部懸浮條顯示
-            const stickyFooter = document.getElementById('mobile-sticky-footer');
-            if (L > 0 && W > 0 && P > 0) {
-                stickyFooter.classList.add('visible');
-            } else {
-                stickyFooter.classList.remove('visible');
-            }
-
-            if (L > 0 && W > 0) {
-                const frameTotal = (L + W) * 2 * P; 
-                const area = L * W; 
+                elements.discountDisplay.textContent = D;
                 
-                const prices = [
-                    frameTotal + (area * config.priceA),
-                    frameTotal + (area * config.priceB),
-                    frameTotal + (area * config.priceC)
-                ];
+                updateText(elements.dispL, L);
+                updateText(elements.dispW, W);
+                updateText(elements.dispP, P, true);
 
-                const fmt = n => `$ ${Math.round(n).toLocaleString()}`;
+                elements.stickyFooter.classList.toggle('visible', L > 0 && W > 0);
 
-                // Update Sticky Footer Price (Plan 1)
-                const finalPriceA = prices[0] * (D/100);
-                document.getElementById('sticky-price').innerText = Math.round(finalPriceA).toLocaleString();
+                if (L > 0 && W > 0) {
+                    const frameTotal = (L + W) * 2 * P;
+                    const area = L * W;
+                    const discountFactor = D / 100;
 
-                [['price-a','old-price-a'], ['price-b','old-price-b'], ['price-c','old-price-c']].forEach((ids, i) => {
-                    const finalPrice = prices[i] * (D/100);
-                    // Update final price
-                    updateValue(ids[0], finalPrice, true);
+                    // 純框價格 (Frame Only) 計算與折扣
+                    const finalFrameOnly = frameTotal * discountFactor;
+                    const formattedFrameOnly = formatter.format(Math.round(finalFrameOnly));
                     
-                    // Update old price
-                    const oldEl = document.getElementById(ids[1]);
-                    oldEl.innerText = D < 100 ? fmt(prices[i]) : "";
-                });
-            } else {
-                // Reset
-                updateValue('price-a', 0, true);
-                updateValue('price-b', 0, true);
-                updateValue('price-c', 0, true);
-                document.getElementById('old-price-a').innerText = "";
-                document.getElementById('old-price-b').innerText = "";
-                document.getElementById('old-price-c').innerText = "";
-                document.getElementById('sticky-price').innerText = "0";
-            }
-        }
+                    elements.quickPrice.textContent = formattedFrameOnly;
+                    elements.stickyPrice.textContent = formattedFrameOnly;
 
-        function toggleSettings() {
-            const d = document.getElementById('settingsDialog');
-            if(d.open) d.close(); else {
-                ['a','b','c'].forEach(k => {
-                    document.getElementById(`cfg-price-${k}`).value = config[`price${k.toUpperCase()}`];
-                });
-                d.showModal();
-            }
-        }
+                    const prices = [
+                        frameTotal + (area * config.priceA),
+                        frameTotal + (area * config.priceB),
+                        frameTotal + (area * config.priceC)
+                    ];
 
-        function saveConfig() {
-            ['A','B','C'].forEach(k => {
-                const val = parseFloat(document.getElementById(`cfg-price-${k.toLowerCase()}`).value);
-                if(!isNaN(val)) config[`price${k}`] = val;
-            });
-            localStorage.setItem('g_cfg_pure', JSON.stringify(config));
-            document.getElementById('settingsDialog').close();
-            calculate(); 
-        }
+                    const updatePlan = (elPrice, elOldPrice, rawPrice) => {
+                        updateText(elPrice, Math.round(rawPrice * discountFactor), true);
+                        elOldPrice.textContent = D < 100 ? `$ ${formatter.format(Math.round(rawPrice))}` : "";
+                    };
 
-        ['length','width','framePrice','discountRange'].forEach(id => {
-            document.getElementById(id).addEventListener('input', calculate);
-        });
+                    updatePlan(elements.priceA, elements.oldPriceA, prices[0]);
+                    updatePlan(elements.priceB, elements.oldPriceB, prices[1]);
+                    updatePlan(elements.priceC, elements.oldPriceC, prices[2]);
 
-        window.addEventListener('DOMContentLoaded', () => {
-            // Fade in effect
-            document.body.style.opacity = '0';
-            setTimeout(() => {
-                document.body.style.transition = 'opacity 1s ease';
-                document.body.style.opacity = '1';
-            }, 100);
-            initLogic();
-        });
+                } else {
+                    ["priceA", "priceB", "priceC"].forEach(k => updateText(elements[k], 0, true));
+                    ["oldPriceA", "oldPriceB", "oldPriceC"].forEach(k => elements[k].textContent = "");
+                    elements.quickPrice.textContent = "0";
+                    elements.stickyPrice.textContent = "0";
+                }
+            };
+
+            return {
+                init: () => {
+                    const savedCfg = localStorage.getItem('g_cfg_pure');
+                    if(savedCfg) config = JSON.parse(savedCfg);
+
+                    const d = new Date();
+                    elements.date.textContent = d.toLocaleDateString('en-US', {year:'numeric', month:'2-digit', day:'2-digit'}).replace(/\//g, '.');
+                    elements.ticketId.textContent = Math.floor(Math.random() * 900000 + 100000);
+
+                    [elements.length, elements.width, elements.framePrice, elements.discount].forEach(el => {
+                        el.addEventListener('input', calculate);
+                    });
+
+                    elements.length.focus();
+                    calculate();
+                    
+                    // ✨ FIX: 簡化淡入動畫，解決閃爍問題
+                    setTimeout(() => {
+                        document.body.style.opacity = '1';
+                    }, 50);
+                },
+                
+                toggleSettings: () => {
+                    if (elements.dialog.open) {
+                        elements.dialog.close();
+                    } else {
+                        elements.cfgA.value = config.priceA;
+                        elements.cfgB.value = config.priceB;
+                        elements.cfgC.value = config.priceC;
+                        elements.dialog.showModal();
+                    }
+                },
+
+                saveConfig: () => {
+                    const getVal = el => parseFloat(el.value);
+                    const vA = getVal(elements.cfgA), vB = getVal(elements.cfgB), vC = getVal(elements.cfgC);
+                    
+                    if (!isNaN(vA)) config.priceA = vA;
+                    if (!isNaN(vB)) config.priceB = vB;
+                    if (!isNaN(vC)) config.priceC = vC;
+
+                    localStorage.setItem('g_cfg_pure', JSON.stringify(config));
+                    elements.dialog.close();
+                    calculate();
+                }
+            };
+        })();
+
+        window.addEventListener('DOMContentLoaded', APP.init);
     </script>
 </body>
 </html>
